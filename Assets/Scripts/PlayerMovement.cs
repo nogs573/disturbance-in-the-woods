@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class PlayerMovement : MonoBehaviour
     private InputAction attackAction;
     private InputAction blinkAction;
 
+    //for debuggin purposes
+    private InputAction resetAction;
+    private float startingX = 0.5f;
+    private float DIMENSION_DIF = 20f;
+
     private Rigidbody2D body;
     private float speed = 8f;
 
@@ -18,10 +24,21 @@ public class PlayerMovement : MonoBehaviour
     private bool alreadyCanceled = false;
     private float jumpForce = 10f;
 
+    GameObject mirror;
+    CinemachineVirtualCamera topCam;
+    CinemachineVirtualCamera bottomCam;
+
+    private bool isOnTop = true;
+
+
     private void Awake() 
     {
         body = GetComponent<Rigidbody2D>();
         defaultPlayerActions = new PlayerInputs();        
+        
+        mirror = GameObject.Find("Player-Mirror");
+        topCam = GameObject.Find("TopCam").GetComponent<CinemachineVirtualCamera>();
+        bottomCam = GameObject.Find("BottomCam").GetComponent<CinemachineVirtualCamera>();
     }
 
     private void OnEnable() 
@@ -36,7 +53,10 @@ public class PlayerMovement : MonoBehaviour
         attackAction.Enable();
 
         blinkAction = defaultPlayerActions.Player.Blink;
-        blinkAction.Enable();        
+        blinkAction.Enable(); 
+
+        resetAction = defaultPlayerActions.Player.ResetPos;
+        resetAction.Enable();       
     }
 
     private void OnDisable() 
@@ -45,6 +65,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction.Disable();
         attackAction.Disable();
         blinkAction.Disable();
+        resetAction.Disable();
     }
 
     public void OnAttack(InputAction.CallbackContext ctx)
@@ -54,6 +75,29 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
+        if (ctx.started)
+        {
+
+            transform.position = mirror.transform.position;
+
+            if (isOnTop)
+            {
+                topCam.m_Follow = mirror.transform;
+                bottomCam.m_Follow = transform;
+
+                topCam.m_Priority = 8;
+                bottomCam.m_Priority = 10;
+            }
+            else
+            {
+                topCam.m_Follow = transform;
+                bottomCam.m_Follow = mirror.transform;
+                topCam.m_Priority = 10;
+                bottomCam.m_Priority = 8;
+            }
+
+            isOnTop = !isOnTop;
+        }        
         //Debug.Log("Player blinked");
     }
 
@@ -76,6 +120,18 @@ public class PlayerMovement : MonoBehaviour
                 alreadyCanceled = true;
             }
         }
+    }
+
+    public void OnReset(InputAction.CallbackContext ctx) 
+    {
+        body.position = new Vector2(startingX, 1.0f);
+        mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
+
+        isOnTop = true;
+        topCam.m_Follow = transform;
+        bottomCam.m_Follow = mirror.transform;
+        topCam.m_Priority = 10;
+        bottomCam.m_Priority = 8;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
