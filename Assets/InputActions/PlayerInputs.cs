@@ -71,6 +71,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ResetPos"",
+                    ""type"": ""Button"",
+                    ""id"": ""847edcf7-67a3-4c81-8188-1159b0eb12e2"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -313,6 +322,28 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Blink"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""616acdb3-f54c-4470-9f81-664f9394c4b4"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""ResetPos"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c79a1e5-5dfe-4eaf-ab14-4b1772d35599"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ResetPos"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -905,6 +936,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_Player_Attack = m_Player.FindAction("Attack", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Blink = m_Player.FindAction("Blink", throwIfNotFound: true);
+        m_Player_ResetPos = m_Player.FindAction("ResetPos", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -983,6 +1015,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Attack;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Blink;
+    private readonly InputAction m_Player_ResetPos;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -992,6 +1025,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @Attack => m_Wrapper.m_Player_Attack;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Blink => m_Wrapper.m_Player_Blink;
+        public InputAction @ResetPos => m_Wrapper.m_Player_ResetPos;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1016,6 +1050,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Blink.started += instance.OnBlink;
             @Blink.performed += instance.OnBlink;
             @Blink.canceled += instance.OnBlink;
+            @ResetPos.started += instance.OnResetPos;
+            @ResetPos.performed += instance.OnResetPos;
+            @ResetPos.canceled += instance.OnResetPos;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1035,6 +1072,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Blink.started -= instance.OnBlink;
             @Blink.performed -= instance.OnBlink;
             @Blink.canceled -= instance.OnBlink;
+            @ResetPos.started -= instance.OnResetPos;
+            @ResetPos.performed -= instance.OnResetPos;
+            @ResetPos.canceled -= instance.OnResetPos;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1222,6 +1262,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnAttack(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnBlink(InputAction.CallbackContext context);
+        void OnResetPos(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
