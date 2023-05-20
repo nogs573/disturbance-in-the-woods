@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Mirror
+  - TopCam
+  - BottomCam
   layers:
   - Default
   - TransparentFX
