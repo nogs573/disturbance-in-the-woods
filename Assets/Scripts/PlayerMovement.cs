@@ -15,7 +15,8 @@ public class PlayerMovement : MonoBehaviour
     private float speed = 8f;
 
     private bool isGrounded = true;
-    private float jumpForce = 300f;
+    private bool alreadyCanceled = false;
+    private float jumpForce = 10f;
 
     private void Awake() 
     {
@@ -46,24 +47,34 @@ public class PlayerMovement : MonoBehaviour
         blinkAction.Disable();
     }
 
-    private void OnAttack()
+    public void OnAttack(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Player attacked");
+        //Debug.Log("Player attacked");
     }
 
-    private void OnBlink()
+    public void OnBlink(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Player blinked");
+        //Debug.Log("Player blinked");
     }
 
-    private void OnJump()
-    {
-
-        if (isGrounded)
+    //New variable-height jump for tighter controls
+    public void OnJump(InputAction.CallbackContext ctx)
+    { 
+        if (ctx.started && isGrounded)
         {
-            //Simple physics-based jump. Eventually I want to edit
-            //it for variable jump height based on holding jump key
-            body.AddForce(Vector2.up * jumpForce);
+            alreadyCanceled = false;
+            body.velocity = new Vector2(body.velocity.x, jumpForce);
+        }
+
+        //Don't want to be able to press+release jump key again
+        //which sets velocity to 0. Looks bad on the way down
+        if (!alreadyCanceled)
+        {
+            if (ctx.canceled && body.velocity.y > 0)
+            {
+                body.velocity = new Vector2(body.velocity.x, 0);
+                alreadyCanceled = true;
+            }
         }
     }
 
