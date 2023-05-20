@@ -36,9 +36,9 @@ public class PlayerMovement : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         defaultPlayerActions = new PlayerInputs();        
         
-        mirror = GameObject.Find("Player-Mirror");
-        topCam = GameObject.Find("TopCam").GetComponent<CinemachineVirtualCamera>();
-        bottomCam = GameObject.Find("BottomCam").GetComponent<CinemachineVirtualCamera>();
+        mirror = GameObject.FindGameObjectsWithTag("Mirror")[0];
+        topCam = GameObject.FindGameObjectsWithTag("TopCam")[0].GetComponent<CinemachineVirtualCamera>();
+        bottomCam = GameObject.FindGameObjectsWithTag("BottomCam")[0].GetComponent<CinemachineVirtualCamera>();
     }
 
     private void OnEnable() 
