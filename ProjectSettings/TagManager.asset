@@ -8,6 +8,7 @@ TagManager:
   - Mirror
   - TopCam
   - BottomCam
+  - Light
   layers:
   - Default
   - TransparentFX
