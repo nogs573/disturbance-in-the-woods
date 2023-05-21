@@ -45,3 +45,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Backgrounds
+    uniqueID: 2681804961
+    locked: 0
+  - name: Platforms
+    uniqueID: 3792034133
+    locked: 0
+  - name: Player
+    uniqueID: 605826349
+    locked: 0
+  - name: Light
+    uniqueID: 3010892677
+    locked: 0

@@ -28,6 +28,9 @@ public class PlayerMovement : MonoBehaviour
     CinemachineVirtualCamera topCam;
     CinemachineVirtualCamera bottomCam;
 
+
+    GameObject[] allLights;
+
     private bool isOnTop = true;
 
 
@@ -39,6 +42,12 @@ public class PlayerMovement : MonoBehaviour
         mirror = GameObject.FindGameObjectsWithTag("Mirror")[0];
         topCam = GameObject.FindGameObjectsWithTag("TopCam")[0].GetComponent<CinemachineVirtualCamera>();
         bottomCam = GameObject.FindGameObjectsWithTag("BottomCam")[0].GetComponent<CinemachineVirtualCamera>();
+        allLights = GameObject.FindGameObjectsWithTag("Light");
+
+        foreach (GameObject light in allLights)
+        {
+            light.SetActive(false);
+        }
     }
 
     private void OnEnable() 
@@ -85,6 +94,11 @@ public class PlayerMovement : MonoBehaviour
                 topCam.m_Follow = mirror.transform;
                 bottomCam.m_Follow = transform;
 
+                foreach (GameObject light in allLights)
+                {
+                    light.SetActive(true);
+                }
+
                 topCam.m_Priority = 8;
                 bottomCam.m_Priority = 10;
             }
@@ -92,6 +106,12 @@ public class PlayerMovement : MonoBehaviour
             {
                 topCam.m_Follow = transform;
                 bottomCam.m_Follow = mirror.transform;
+
+                foreach (GameObject light in allLights)
+                {
+                    light.SetActive(false);
+                }
+
                 topCam.m_Priority = 10;
                 bottomCam.m_Priority = 8;
             }
