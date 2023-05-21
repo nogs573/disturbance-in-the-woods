@@ -98,9 +98,19 @@ public class PlayerMovement : MonoBehaviour
         if (ctx.started && isGrounded)
         {
             isPeeking = true;
-            peekCamPos = topCam.transform.position;
-            peekCam.transform.position = peekCamPos;
-            peekDir = -1;
+            if (isOnTop)
+            {
+                peekCamPos = topCam.transform.position;
+                peekCam.transform.position = peekCamPos;
+                peekDir = -1;
+            }
+            else if(!isOnTop)
+            {
+                peekCamPos = bottomCam.transform.position;
+                peekCam.transform.position = peekCamPos;
+                peekDir = 1;
+            }
+            
             peekCam.m_Priority = 11;
         }
 
@@ -111,11 +121,6 @@ public class PlayerMovement : MonoBehaviour
         }
         //Debug.Log("Player is peeking down");
     }
-
-    public void OnPeekCalculations()
-    {
-    }
-
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
@@ -215,11 +220,6 @@ public class PlayerMovement : MonoBehaviour
         vel.x = speed * moveDir.x;
 
         body.velocity = vel;        
-    }
-
-    private void Update() 
-    {
-
     }
 
     private void LateUpdate() 
