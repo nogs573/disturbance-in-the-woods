@@ -8,9 +8,12 @@ public class PlayerMirror : MonoBehaviour
     private GameObject Player;
     private int DIMENSION_DIF = -20;
 
+    PlayerMovement playerMovement;
+
     private void Awake() 
     {
         Player = GameObject.FindGameObjectsWithTag("Player")[0];
+        playerMovement = FindObjectOfType<PlayerMovement>();
     }
     
     private void FixedUpdate() 
@@ -22,7 +25,7 @@ public class PlayerMirror : MonoBehaviour
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
-        if (ctx.started)
+        if (ctx.started && !playerMovement.isPeeking)
             DIMENSION_DIF *= -1;
     }
 }

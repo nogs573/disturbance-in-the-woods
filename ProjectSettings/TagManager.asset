@@ -9,6 +9,7 @@ TagManager:
   - TopCam
   - BottomCam
   - Light
+  - PeekCam
   layers:
   - Default
   - TransparentFX

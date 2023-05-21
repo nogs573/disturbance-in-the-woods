@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private InputAction jumpAction;
     private InputAction attackAction;
     private InputAction blinkAction;
+    private InputAction peekAction;
 
     //for debuggin purposes
     private InputAction resetAction;
@@ -27,11 +28,13 @@ public class PlayerMovement : MonoBehaviour
     GameObject mirror;
     CinemachineVirtualCamera topCam;
     CinemachineVirtualCamera bottomCam;
+    CinemachineVirtualCamera peekCam;
 
 
     GameObject[] allLights;
 
     private bool isOnTop = true;
+    public bool isPeeking = false;
 
 
     private void Awake() 
@@ -42,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
         mirror = GameObject.FindGameObjectsWithTag("Mirror")[0];
         topCam = GameObject.FindGameObjectsWithTag("TopCam")[0].GetComponent<CinemachineVirtualCamera>();
         bottomCam = GameObject.FindGameObjectsWithTag("BottomCam")[0].GetComponent<CinemachineVirtualCamera>();
+        peekCam = GameObject.FindGameObjectsWithTag("PeekCam")[0].GetComponent<CinemachineVirtualCamera>();
         allLights = GameObject.FindGameObjectsWithTag("Light");
 
         foreach (GameObject light in allLights)
@@ -63,6 +67,9 @@ public class PlayerMovement : MonoBehaviour
 
         blinkAction = defaultPlayerActions.Player.Blink;
         blinkAction.Enable(); 
+        
+        peekAction = defaultPlayerActions.Player.Peek;
+        peekAction.Enable();
 
         resetAction = defaultPlayerActions.Player.ResetPos;
         resetAction.Enable();       
@@ -74,6 +81,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction.Disable();
         attackAction.Disable();
         blinkAction.Disable();
+        peekAction.Disable();
         resetAction.Disable();
     }
 
@@ -82,9 +90,26 @@ public class PlayerMovement : MonoBehaviour
         //Debug.Log("Player attacked");
     }
 
+    public void OnPeek(InputAction.CallbackContext ctx)
+    {
+        if (ctx.started && isGrounded)
+        {
+            isPeeking = true;
+            peekCam.m_Priority = 11;
+        }
+
+        if (ctx.canceled)
+        {
+            isPeeking = false;
+            peekCam.m_Priority = 5;
+        }
+        Debug.Log("Player is peeking down");
+    }
+
+
     public void OnBlink(InputAction.CallbackContext ctx)
     {
-        if (ctx.started)
+        if (ctx.started && !isPeeking)
         {
 
             transform.position = mirror.transform.position;
@@ -118,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
 
             isOnTop = !isOnTop;
         }        
-        //Debug.Log("Player blinked");
+        Debug.Log("Player blinked");
     }
 
     //New variable-height jump for tighter controls
