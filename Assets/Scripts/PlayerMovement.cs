@@ -26,10 +26,13 @@ public class PlayerMovement : MonoBehaviour
     private float jumpForce = 10f;
 
     GameObject mirror;
+    Vector3 peekCamPos;
     CinemachineVirtualCamera topCam;
     CinemachineVirtualCamera bottomCam;
     CinemachineVirtualCamera peekCam;
 
+    [SerializeField] float peekSpeed = 1f;
+    private int peekDir = -1;
 
     GameObject[] allLights;
 
@@ -95,6 +98,9 @@ public class PlayerMovement : MonoBehaviour
         if (ctx.started && isGrounded)
         {
             isPeeking = true;
+            peekCamPos = topCam.transform.position;
+            peekCam.transform.position = peekCamPos;
+            peekDir = -1;
             peekCam.m_Priority = 11;
         }
 
@@ -103,7 +109,11 @@ public class PlayerMovement : MonoBehaviour
             isPeeking = false;
             peekCam.m_Priority = 5;
         }
-        Debug.Log("Player is peeking down");
+        //Debug.Log("Player is peeking down");
+    }
+
+    public void OnPeekCalculations()
+    {
     }
 
 
@@ -205,5 +215,19 @@ public class PlayerMovement : MonoBehaviour
         vel.x = speed * moveDir.x;
 
         body.velocity = vel;        
+    }
+
+    private void Update() 
+    {
+
+    }
+
+    private void LateUpdate() 
+    {
+        float peekAmount = peekDir * peekSpeed * Time.deltaTime;
+        if (isPeeking)
+        {
+            peekCam.transform.Translate(0,peekAmount,0);
+        }
     }
 }

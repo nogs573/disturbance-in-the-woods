@@ -13,7 +13,8 @@ public class PlayerMirror : MonoBehaviour
     private void Awake() 
     {
         Player = GameObject.FindGameObjectsWithTag("Player")[0];
-        playerMovement = FindObjectOfType<PlayerMovement>();
+        playerMovement = Player.GetComponent<PlayerMovement>();
+        //playerMovement = FindObjectOfType<PlayerMovement>();
     }
     
     private void FixedUpdate() 
