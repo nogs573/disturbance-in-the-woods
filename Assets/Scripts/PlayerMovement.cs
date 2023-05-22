@@ -219,7 +219,14 @@ public class PlayerMovement : MonoBehaviour
         Vector2 vel = GetComponent<Rigidbody2D>().velocity;
         vel.x = speed * moveDir.x;
 
-        body.velocity = vel;        
+        if (isPeeking)
+        {
+            body.velocity = vel * 0; 
+        }
+        else
+        {
+            body.velocity = vel; 
+        }
     }
 
     private void LateUpdate() 

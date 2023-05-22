@@ -255,7 +255,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1888307415218228774, guid: f84ad62c7cf696443b663de12f7c1f97, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 1888307415218228774, guid: f84ad62c7cf696443b663de12f7c1f97, type: 3}
       propertyPath: m_LocalRotation.w
@@ -293,6 +293,10 @@ PrefabInstance:
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 1629724628}
+    - target: {fileID: 1888307415259688541, guid: f84ad62c7cf696443b663de12f7c1f97, type: 3}
+      propertyPath: m_FollowOffset.z
+      value: -15
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f84ad62c7cf696443b663de12f7c1f97, type: 3}
 --- !u!1 &235133415
@@ -624,7 +628,7 @@ GameObject:
   - component: {fileID: 673543108}
   m_Layer: 0
   m_Name: Forest
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2360,6 +2364,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9104366225334644923, guid: caae791c2bed4a64ebc35988d50b0e99, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 9104366225334644926, guid: caae791c2bed4a64ebc35988d50b0e99, type: 3}
       propertyPath: m_Name
       value: Player
@@ -2387,7 +2395,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2069747345560126088, guid: fa22b5fe26b9e834c89c5edcca2caa46, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 2069747345560126088, guid: fa22b5fe26b9e834c89c5edcca2caa46, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2425,6 +2433,10 @@ PrefabInstance:
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 328521937}
+    - target: {fileID: 2069747346379988431, guid: fa22b5fe26b9e834c89c5edcca2caa46, type: 3}
+      propertyPath: m_FollowOffset.z
+      value: -15
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa22b5fe26b9e834c89c5edcca2caa46, type: 3}
 --- !u!1 &1362632583
@@ -2602,7 +2614,7 @@ GameObject:
   - component: {fileID: 1534106079}
   m_Layer: 0
   m_Name: Forest
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4150,7 +4162,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8702803830362190961, guid: f84080d42e9fd944d90b3b23e3a548c6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 8702803830362190961, guid: f84080d42e9fd944d90b3b23e3a548c6, type: 3}
       propertyPath: m_LocalRotation.w
