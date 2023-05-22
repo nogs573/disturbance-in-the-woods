@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerMirror : MonoBehaviour
 {
     private GameObject Player;
-    private float DIMENSION_DIF = -21.29555f;
+    [SerializeField] private float DIMENSION_DIF = -21.29555f;
 
     PlayerMovement playerMovement;
 
