@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
     //for debuggin purposes
     private InputAction resetAction;
     private float startingX = 0.5f;
-    private float DIMENSION_DIF = 20f;
+    private float DIMENSION_DIF = 20.72f;
 
     private Rigidbody2D body;
     private float speed = 8f;
