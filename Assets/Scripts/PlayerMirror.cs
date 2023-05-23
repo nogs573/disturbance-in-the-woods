@@ -6,27 +6,35 @@ using UnityEngine.InputSystem;
 public class PlayerMirror : MonoBehaviour
 {
     private GameObject Player;
-    [SerializeField] private float DIMENSION_DIF = -21.29555f;
+    private float DIMENSION_DIF;
 
+    private LevelManager level;
     PlayerMovement playerMovement;
 
-    private void Awake() 
+    private void Start() 
     {
+        level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();
         Player = GameObject.FindGameObjectsWithTag("Player")[0];
         playerMovement = Player.GetComponent<PlayerMovement>();
-        //playerMovement = FindObjectOfType<PlayerMovement>();
+
+        DIMENSION_DIF = level.getDimDiff() * -1;
     }
     
     private void FixedUpdate() 
     {
-        //Copy player position at all times DIMENSION_DIF units below
         Vector3 playerPos = Player.transform.position;
-        transform.position = new Vector3(playerPos.x, playerPos.y + DIMENSION_DIF, 0);        
+        //Copy player position at all times at a DIMENSION_DIF interval
+        transform.position = new Vector3(playerPos.x, playerPos.y + DIMENSION_DIF, 0);               
     }
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
         if (ctx.started && !playerMovement.isPeeking)
-            DIMENSION_DIF *= -1;
+            dimensionFlip();
+    }
+
+    public void dimensionFlip()
+    {
+        DIMENSION_DIF *= -1;
     }
 }
