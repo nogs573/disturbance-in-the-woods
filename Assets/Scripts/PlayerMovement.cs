@@ -7,6 +7,8 @@ using Cinemachine;
 public class PlayerMovement : MonoBehaviour
 {
     private LevelManager level;
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     private PlayerInputs defaultPlayerActions;
     private InputAction moveAction;
@@ -25,8 +27,15 @@ public class PlayerMovement : MonoBehaviour
     private float speed = 8f;
 
     private bool isGrounded = true;
+    private bool isJumping = false;
+    private bool willLand = false;
+
     private bool alreadyCanceled = false;
     private float jumpForce = 10f;
+    //Number of frames after which you no longer have
+    //ground underneath you when you can still jump
+    private int JUMP_LENIENCY = 5;
+    private int leniencyCounter = 0;
 
     GameObject mirror;
     Vector3 peekCamPos;
@@ -46,9 +55,6 @@ public class PlayerMovement : MonoBehaviour
     //amount of time player should be frozen
     //if they perform a bad blink
     private float badBlinkTime = 1.5f;
-    private bool isFrozen = false;
-    private float frozenTimer = 0f;
-
 
     private void Awake() 
     {
@@ -165,26 +171,21 @@ public class PlayerMovement : MonoBehaviour
         float rayDistance = 1f;
         
         Vector2[] dir = {new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1)};
-        // bool onBottom = false;
         for (int i=0; i<4; i++)
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, dir[i], rayDistance);
             if (hit.collider != null && hit.collider.CompareTag("Ground"))
             {
-                // if (i==3)
-                //     onBottom = true;
                 count++;
             }
         }
 
-        Debug.Log("Number of grounds: " + count);
         if (count == 4)
         {
             Debug.Log("Stuck in ground");
-
             //Player.takeDamage(GROUND_DAMAGE);
             //Player.playSound("Player stuck in wall") (gasp?)
-            //Player.switchAnimation(Hurt animation);
+            animator.SetTrigger("DamageTaken");
             body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             StartCoroutine(FreezePlayer(badBlinkTime));
             //Player.immuneToDamage(1.5 sec);
@@ -226,8 +227,10 @@ public class PlayerMovement : MonoBehaviour
     //New variable-height jump for tighter controls
     public void OnJump(InputAction.CallbackContext ctx)
     { 
-        if (ctx.started && isGrounded)
+        if (ctx.started && (isGrounded || leniencyCounter <= JUMP_LENIENCY))
         {
+            isJumping = true;
+            animator.SetBool("IsJumping", true); 
             alreadyCanceled = false;
             body.velocity = new Vector2(body.velocity.x, jumpForce);
             isGrounded = false;
@@ -250,6 +253,8 @@ public class PlayerMovement : MonoBehaviour
         body.position = new Vector2(startingX, 1.0f);
         mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
 
+        animator.SetTrigger("Respawn");
+
         goingDown = true;
         topCam.m_Follow = transform;
         bottomCam.m_Follow = mirror.transform;
@@ -262,6 +267,18 @@ public class PlayerMovement : MonoBehaviour
         Vector2 moveDir = moveAction.ReadValue<Vector2>();
         Vector2 vel = GetComponent<Rigidbody2D>().velocity;
         vel.x = speed * moveDir.x;
+        animator.SetFloat("xSpeed", Mathf.Abs(vel.x));
+
+        //Player is going down
+        if (isJumping && vel.y < 0)
+        {
+            willLand = true;
+        }
+
+        if ((vel.x < 0 && !spriteRenderer.flipX) || (vel.x > 0 && spriteRenderer.flipX))
+        {
+            flipSprite();
+        }
 
         if (isPeeking)
         {
@@ -272,6 +289,8 @@ public class PlayerMovement : MonoBehaviour
             body.velocity = vel; 
         }
 
+        //Debug.Log(vel.y);
+
         //No choice but to check if touching the ground here, because if 
         //we collide with a vertical surface like stairs, we will slip down
         //to the ground, but it won't trigger a second collision.
@@ -281,6 +300,26 @@ public class PlayerMovement : MonoBehaviour
         //float raySides = 0.52;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance);
         isGrounded = hit.collider != null;
+
+        if (willLand && isGrounded)
+        {
+            isJumping = false;
+            animator.SetBool("IsJumping", false);
+            willLand = false;
+        }
+
+
+        if (!isGrounded)
+        {
+            leniencyCounter += 1;           
+        }
+        else
+        {      
+            //player is on the first frame of ground as they're coming down
+            
+            leniencyCounter = 0;
+        }
+
         isBlinking = false;
     }
 
@@ -328,5 +367,10 @@ public class PlayerMovement : MonoBehaviour
             topCam.m_Priority = 10;
             bottomCam.m_Priority = 8;
         }        
+    }
+
+    private void flipSprite()
+    {
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 }
