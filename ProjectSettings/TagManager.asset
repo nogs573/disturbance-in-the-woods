@@ -10,6 +10,7 @@ TagManager:
   - BottomCam
   - Light
   - PeekCam
+  - LevelManager
   layers:
   - Default
   - TransparentFX
