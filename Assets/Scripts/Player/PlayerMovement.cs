@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private LevelManager level;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    public LayerMask DetectGroundLayer;
 
     private PlayerInputs defaultPlayerActions;
     private InputAction moveAction;
@@ -60,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         defaultPlayerActions = new PlayerInputs();
+        animator.SetBool("IsAlive", true);
 
         level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();       
         
@@ -115,6 +117,8 @@ public class PlayerMovement : MonoBehaviour
     public void OnAttack(InputAction.CallbackContext ctx)
     {
         //Debug.Log("Player attacked");
+        animator.SetBool("IsAlive", false);
+        animator.SetTrigger("PlayDeath");
     }
 
     public void OnPeek(InputAction.CallbackContext ctx)
@@ -167,18 +171,26 @@ public class PlayerMovement : MonoBehaviour
 
         //Cast rays in all four cardinal directions. If there's ground within
         //x units in every direction, we're stuck in the ground.
+
+        //float detectionRadius = 1f;
         int count = 0;
-        float rayDistance = 1f;
+        float rayDistance = 0.01f;
+        //Vector2 playerPos = new Vector2(transform.position.x, transform.position.y);
         
         Vector2[] dir = {new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1)};
+
         for (int i=0; i<4; i++)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir[i], rayDistance);
+            //Vector2 detectionPoint = playerPos + dir[i] * detectionRadius;
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir[i], rayDistance, DetectGroundLayer);
+            //Collider2D hit = Physics2D.OverlapCircle(detectionPoint, detectionRadius, DetectGroundLayer);
             if (hit.collider != null && hit.collider.CompareTag("Ground"))
             {
                 count++;
             }
         }
+
+        Debug.Log(count);
 
         if (count == 4)
         {
@@ -254,6 +266,7 @@ public class PlayerMovement : MonoBehaviour
         mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
 
         animator.SetTrigger("Respawn");
+        animator.SetBool("IsAlive", true);
 
         goingDown = true;
         topCam.m_Follow = transform;
@@ -265,7 +278,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate() 
     {
         Vector2 moveDir = moveAction.ReadValue<Vector2>();
-        Vector2 vel = GetComponent<Rigidbody2D>().velocity;
+        Vector2 vel = body.velocity;
         vel.x = speed * moveDir.x;
         animator.SetFloat("xSpeed", Mathf.Abs(vel.x));
 
@@ -298,7 +311,7 @@ public class PlayerMovement : MonoBehaviour
         
         float rayDistance = 1.02f;
         //float raySides = 0.52;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, DetectGroundLayer);
         isGrounded = hit.collider != null;
 
         if (willLand && isGrounded)
