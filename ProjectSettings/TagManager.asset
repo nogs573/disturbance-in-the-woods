@@ -19,8 +19,8 @@ TagManager:
   - DetectPlayerLayer
   - Water
   - UI
-  - DetectGroundLayer
-  - 
+  - DetectUpperLayer
+  - DetectLowerLayer
   - 
   - 
   - 
