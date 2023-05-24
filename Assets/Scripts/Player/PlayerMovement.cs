@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Tilemaps;
 using Cinemachine;
 
 public class PlayerMovement : MonoBehaviour
@@ -9,14 +10,21 @@ public class PlayerMovement : MonoBehaviour
     private LevelManager level;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    public LayerMask DetectGroundLayer;
+    public LayerMask DetectUpperLayer;
+    public LayerMask DetectLowerLayer;
+
+    private Tilemap whichTilemap;
+    private Tilemap upperTilemap;
+    private Tilemap lowerTilemap;
+
+    private bool onUpper = true;
 
     private PlayerInputs defaultPlayerActions;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction attackAction;
     private InputAction blinkAction;
-    private InputAction peekAction;
+    private InputAction peekAction;    
 
     private float DIMENSION_DIF;
 
@@ -49,7 +57,6 @@ public class PlayerMovement : MonoBehaviour
 
     GameObject[] allLights;
 
-    private bool goingDown = true;
     public bool isPeeking = false;
     private bool isBlinking = false;
 
@@ -70,6 +77,10 @@ public class PlayerMovement : MonoBehaviour
         bottomCam = GameObject.FindGameObjectsWithTag("BottomCam")[0].GetComponent<CinemachineVirtualCamera>();
         peekCam = GameObject.FindGameObjectsWithTag("PeekCam")[0].GetComponent<CinemachineVirtualCamera>();
         allLights = GameObject.FindGameObjectsWithTag("Light");
+
+        GameObject[] terrains = GameObject.FindGameObjectsWithTag("Ground");
+        upperTilemap = terrains[0].GetComponent<Tilemap>();
+        lowerTilemap = terrains[1].GetComponent<Tilemap>();
 
         foreach (GameObject light in allLights)
         {
@@ -117,8 +128,8 @@ public class PlayerMovement : MonoBehaviour
     public void OnAttack(InputAction.CallbackContext ctx)
     {
         //Debug.Log("Player attacked");
-        animator.SetBool("IsAlive", false);
-        animator.SetTrigger("PlayDeath");
+        // animator.SetBool("IsAlive", false);
+        // animator.SetTrigger("PlayDeath");
     }
 
     public void OnPeek(InputAction.CallbackContext ctx)
@@ -126,13 +137,13 @@ public class PlayerMovement : MonoBehaviour
         if (ctx.started && isGrounded)
         {
             isPeeking = true;
-            if (goingDown)
+            if (onUpper)
             {
                 peekCamPos = topCam.transform.position;
                 peekCam.transform.position = peekCamPos;
                 peekDir = -1;
             }
-            else if(!goingDown)
+            else if(!onUpper)
             {
                 peekCamPos = bottomCam.transform.position;
                 peekCam.transform.position = peekCamPos;
@@ -164,37 +175,43 @@ public class PlayerMovement : MonoBehaviour
         
         //Swap places with mirror and switch active camera
         transform.position = mirror.transform.position;
-        toggleCameraFollow(goingDown);
-        toggleLights(goingDown);
-        toggleActiveCamera(goingDown);
-        goingDown = !goingDown;
+        toggleCameraFollow(onUpper);
+        toggleLights(onUpper);
+        toggleActiveCamera(onUpper);
+        onUpper = !onUpper;
 
-        //Cast rays in all four cardinal directions. If there's ground within
-        //x units in every direction, we're stuck in the ground.
-
-        //float detectionRadius = 1f;
-        int count = 0;
-        float rayDistance = 0.01f;
-        //Vector2 playerPos = new Vector2(transform.position.x, transform.position.y);
-        
-        Vector2[] dir = {new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1)};
-
-        for (int i=0; i<4; i++)
+        Vector3 playerPos = transform.position;
+        if (!onUpper)
         {
-            //Vector2 detectionPoint = playerPos + dir[i] * detectionRadius;
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir[i], rayDistance, DetectGroundLayer);
-            //Collider2D hit = Physics2D.OverlapCircle(detectionPoint, detectionRadius, DetectGroundLayer);
-            if (hit.collider != null && hit.collider.CompareTag("Ground"))
-            {
-                count++;
-            }
+            whichTilemap = lowerTilemap;
+        }
+        else
+        {
+            whichTilemap = upperTilemap; 
         }
 
-        Debug.Log(count);
-
-        if (count == 4)
+        //Can't raycast for tilemap colliders inside the ground
+        //using a composite collider, so we get the closest two
+        //tiles to the shape of the player. If there is a tile
+        //in either of those spots, we're stuck in the ground.
+        float adjustY = 0;
+        if (whichTilemap == lowerTilemap)
         {
-            Debug.Log("Stuck in ground");
+            adjustY = DIMENSION_DIF;
+        }
+
+        Vector3Int topCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y + 0.5f + adjustY), 0);
+        Vector3Int bottomCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y - 0.5f + adjustY), 0);
+        
+        // Debug.Log(topCheck);
+        // Debug.Log(bottomCheck);
+
+        bool stuckInGround = 
+            whichTilemap.GetTile(topCheck) != null ||
+            whichTilemap.GetTile(bottomCheck) != null;
+
+        if (stuckInGround)
+        {
             //Player.takeDamage(GROUND_DAMAGE);
             //Player.playSound("Player stuck in wall") (gasp?)
             animator.SetTrigger("DamageTaken");
@@ -268,7 +285,9 @@ public class PlayerMovement : MonoBehaviour
         animator.SetTrigger("Respawn");
         animator.SetBool("IsAlive", true);
 
-        goingDown = true;
+        toggleLights(false);
+
+        onUpper = true;
         topCam.m_Follow = transform;
         bottomCam.m_Follow = mirror.transform;
         topCam.m_Priority = 10;
@@ -302,16 +321,19 @@ public class PlayerMovement : MonoBehaviour
             body.velocity = vel; 
         }
 
-        //Debug.Log(vel.y);
-
         //No choice but to check if touching the ground here, because if 
         //we collide with a vertical surface like stairs, we will slip down
         //to the ground, but it won't trigger a second collision.
-        //Cast ray beneath the player to check if they're touching the ground 
-        
+        //Cast ray beneath the player to check if they're touching the ground         
         float rayDistance = 1.02f;
         //float raySides = 0.52;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, DetectGroundLayer);
+        LayerMask whichLayer;
+        if (onUpper)
+            whichLayer = DetectUpperLayer;
+        else
+            whichLayer = DetectLowerLayer;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, whichLayer);
         isGrounded = hit.collider != null;
 
         if (willLand && isGrounded)
@@ -327,13 +349,13 @@ public class PlayerMovement : MonoBehaviour
             leniencyCounter += 1;           
         }
         else
-        {      
-            //player is on the first frame of ground as they're coming down
-            
+        {                  
             leniencyCounter = 0;
         }
 
         isBlinking = false;
+
+
     }
 
     private void LateUpdate() 
@@ -348,9 +370,10 @@ public class PlayerMovement : MonoBehaviour
     //--------------------------------------------------------------
     //Helper methods
 
-    public void toggleCameraFollow(bool goingDown)
+    public void toggleCameraFollow(bool onUpper)
     {
-        if (goingDown)
+        if (onUpper
+)
         {
             topCam.m_Follow = mirror.transform;
             bottomCam.m_Follow = transform;
@@ -362,15 +385,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void toggleLights(bool goingDown)
+    public void toggleLights(bool onUpper)
     {
         foreach (GameObject light in allLights)
-            light.SetActive(goingDown); //SetActive(true) if going down
+            light.SetActive(onUpper); //SetActive(true) if going down
     }
 
-    public void toggleActiveCamera(bool goingDown)
+    public void toggleActiveCamera(bool onUpper)
     {
-        if (goingDown)
+        if (onUpper
+)
         {
             topCam.m_Priority = 8;
             bottomCam.m_Priority = 10;
