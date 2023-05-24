@@ -11,14 +11,15 @@ TagManager:
   - Light
   - PeekCam
   - LevelManager
+  - Enemy
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - DetectPlayerLayer
   - Water
   - UI
-  - 
+  - DetectGroundLayer
   - 
   - 
   - 
@@ -53,6 +54,9 @@ TagManager:
     locked: 0
   - name: Platforms
     uniqueID: 3792034133
+    locked: 0
+  - name: Enemies
+    uniqueID: 2762657025
     locked: 0
   - name: Player
     uniqueID: 605826349
