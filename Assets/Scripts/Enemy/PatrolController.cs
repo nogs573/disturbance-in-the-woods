@@ -27,8 +27,6 @@ public class PatrolController : MonoBehaviour
     float currPosChecker;
     int sameXLimit = 10;
     int sameXCount = 0;
-    
-
 
     bool playerBlinked = false;
 
