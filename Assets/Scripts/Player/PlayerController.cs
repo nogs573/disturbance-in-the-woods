@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 using Cinemachine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     private LevelManager level;
     [SerializeField] private Animator animator;
@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     private Tilemap whichTilemap;
     private Tilemap upperTilemap;
     private Tilemap lowerTilemap;
+
+    PlayerManager PlayerManager;
 
     private bool onUpper = true;
 
@@ -82,6 +84,8 @@ public class PlayerMovement : MonoBehaviour
         upperTilemap = terrains[0].GetComponent<Tilemap>();
         lowerTilemap = terrains[1].GetComponent<Tilemap>();
 
+        PlayerManager = transform.GetComponent<PlayerManager>();
+
         foreach (GameObject light in allLights)
         {
             light.SetActive(false);
@@ -143,7 +147,7 @@ public class PlayerMovement : MonoBehaviour
                 peekCam.transform.position = peekCamPos;
                 peekDir = -1;
             }
-            else if(!onUpper)
+            else
             {
                 peekCamPos = bottomCam.transform.position;
                 peekCam.transform.position = peekCamPos;
@@ -180,39 +184,52 @@ public class PlayerMovement : MonoBehaviour
         toggleActiveCamera(onUpper);
         onUpper = !onUpper;
 
-        Vector3 playerPos = transform.position;
-        if (!onUpper)
-        {
-            whichTilemap = lowerTilemap;
-        }
-        else
-        {
-            whichTilemap = upperTilemap; 
-        }
+        bool blinkedInEnemy = false;
+        bool stuckInGround = false;
 
-        //Can't raycast for tilemap colliders inside the ground
-        //using a composite collider, so we get the closest two
-        //tiles to the shape of the player. If there is a tile
-        //in either of those spots, we're stuck in the ground.
-        float adjustY = 0;
-        if (whichTilemap == lowerTilemap)
+        float rayDistance = 0.01f;
+        Vector2[] dirs = {Vector2.up, Vector2.down, Vector2.left, Vector2.right};
+        int count = 0;
+
+        while (count < 4 && !blinkedInEnemy)
         {
-            adjustY = DIMENSION_DIF;
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dirs[count], rayDistance);
+            if (hit.collider != null && hit.collider.CompareTag("Enemy"))
+                blinkedInEnemy = true;
+            count++;
         }
 
-        Vector3Int topCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y + 0.5f + adjustY), 0);
-        Vector3Int bottomCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y - 0.5f + adjustY), 0);
-        
-        // Debug.Log(topCheck);
-        // Debug.Log(bottomCheck);
-
-        bool stuckInGround = 
-            whichTilemap.GetTile(topCheck) != null ||
-            whichTilemap.GetTile(bottomCheck) != null;
-
-        if (stuckInGround)
+        if (!blinkedInEnemy)
         {
-            //Player.takeDamage(GROUND_DAMAGE);
+            Vector3 playerPos = transform.position;
+            if (!onUpper)
+            {
+                whichTilemap = lowerTilemap;
+            }
+            else
+            {
+                whichTilemap = upperTilemap; 
+            }
+
+            //Can't raycast for tilemap colliders inside the ground
+            //using a composite collider, so we get the closest two
+            //tiles to the shape of the player. If there is a tile
+            //in either of those spots, we're stuck in the ground.
+            float adjustY = 0;
+            if (whichTilemap == lowerTilemap)
+            {
+                adjustY = DIMENSION_DIF;
+            }
+
+            Vector3Int topCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y + 0.5f + adjustY), 0);
+            Vector3Int bottomCheck = new Vector3Int(Mathf.RoundToInt(playerPos.x - 0.5f), Mathf.RoundToInt(playerPos.y - 0.5f + adjustY), 0);
+
+            stuckInGround = whichTilemap.GetTile(topCheck) != null || whichTilemap.GetTile(bottomCheck) != null; 
+        }       
+
+        if (stuckInGround || blinkedInEnemy)
+        {
+            PlayerManager.takeDamage(10);
             //Player.playSound("Player stuck in wall") (gasp?)
             animator.SetTrigger("DamageTaken");
             body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
@@ -236,9 +253,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isBlinking)
         {        
-            if (collision.gameObject.CompareTag("Enemy"))
+            GameObject other = collision.gameObject;
+            if (other.CompareTag("Enemy"))
             {
-                //take damage from enemy and get pushed back
+                Vector2 hurtVector = body.transform.position - other.transform.position;
+                animator.SetTrigger("DamageTaken");
+                body.AddForce(hurtVector * 5, ForceMode2D.Impulse);
+                PlayerManager.takeDamage(10);                
             }
         }
         else //player just blinked
@@ -352,10 +373,6 @@ public class PlayerMovement : MonoBehaviour
         {                  
             leniencyCounter = 0;
         }
-
-        isBlinking = false;
-
-
     }
 
     private void LateUpdate() 
@@ -365,6 +382,9 @@ public class PlayerMovement : MonoBehaviour
         {
             peekCam.transform.Translate(0,peekAmount,0);
         }
+
+        if (isBlinking)
+            isBlinking = false;
     }
 
     //--------------------------------------------------------------
@@ -372,8 +392,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void toggleCameraFollow(bool onUpper)
     {
-        if (onUpper
-)
+        if (onUpper)
         {
             topCam.m_Follow = mirror.transform;
             bottomCam.m_Follow = transform;

@@ -9,13 +9,13 @@ public class PlayerMirror : MonoBehaviour
     private float DIMENSION_DIF;
 
     private LevelManager level;
-    PlayerMovement playerMovement;
+    PlayerController playerControl;
 
     private void Start() 
     {
         level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();
         Player = GameObject.FindGameObjectsWithTag("Player")[0];
-        playerMovement = Player.GetComponent<PlayerMovement>();
+        playerControl = Player.GetComponent<PlayerController>();
 
         DIMENSION_DIF = level.getDimDiff() * -1;
     }
@@ -29,7 +29,7 @@ public class PlayerMirror : MonoBehaviour
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
-        if (ctx.started && !playerMovement.isPeeking)
+        if (ctx.started && !playerControl.isPeeking)
             dimensionFlip();
     }
 
