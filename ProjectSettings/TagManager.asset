@@ -12,6 +12,7 @@ TagManager:
   - PeekCam
   - LevelManager
   - Enemy
+  - PatrolPoint
   layers:
   - Default
   - TransparentFX
