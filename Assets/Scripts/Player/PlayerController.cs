@@ -245,6 +245,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator HurtPlayer() 
+    {
+        yield return new WaitForSeconds(0.25f);
+        animator.SetBool("BeingHurt", false);
+    }
+
     IEnumerator FreezePlayer(float t)
     {       
         yield return new WaitForSeconds(0.25f);
@@ -267,8 +273,8 @@ public class PlayerController : MonoBehaviour
             if (other.CompareTag("Enemy"))
             {
                 Vector2 hurtVector = body.transform.position - other.transform.position;
-                animator.SetTrigger("DamageTaken");
-                body.AddForce(hurtVector * 5, ForceMode2D.Impulse);
+                animator.SetBool("BeingHurt", true);
+                StartCoroutine(HurtPlayer());
                 PlayerManager.takeDamage(10);                
             }
         }
