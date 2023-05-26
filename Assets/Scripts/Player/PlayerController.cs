@@ -131,7 +131,10 @@ public class PlayerController : MonoBehaviour
 
     public void OnAttack(InputAction.CallbackContext ctx)
     {
-        //Debug.Log("Player attacked");
+        if (ctx.started)
+        {
+            animator.SetTrigger("Attacked");
+        }
         // animator.SetBool("IsAlive", false);
         // animator.SetTrigger("PlayDeath");
     }
@@ -232,6 +235,7 @@ public class PlayerController : MonoBehaviour
         {
             PlayerManager.takeDamage(10);
             //Player.playSound("Player stuck in wall") (gasp?)
+            animator.ResetTrigger("Blinked");
             animator.SetTrigger("DamageTaken");
             body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             StartCoroutine(FreezePlayer(badBlinkTime));
