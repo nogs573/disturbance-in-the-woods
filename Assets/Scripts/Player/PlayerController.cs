@@ -170,12 +170,13 @@ public class PlayerController : MonoBehaviour
         if (ctx.started && !isPeeking)
         {
            PerformBlink();
+           animator.SetTrigger("Blinked");
         }        
     }
 
     private void PerformBlink()
     {
-        isBlinking = true;
+        isBlinking = true;       
         
         //Swap places with mirror and switch active camera
         transform.position = mirror.transform.position;
