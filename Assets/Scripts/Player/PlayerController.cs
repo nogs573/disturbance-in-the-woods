@@ -235,8 +235,9 @@ public class PlayerController : MonoBehaviour
         {
             PlayerManager.takeDamage(10);
             //Player.playSound("Player stuck in wall") (gasp?)
-            animator.ResetTrigger("Blinked");
-            animator.SetTrigger("DamageTaken");
+            //Debug.Log("GOT HERE");
+            animator.SetBool("BeingHurt", true);
+            //animator.SetTrigger("DamageTaken");
             body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             StartCoroutine(FreezePlayer(badBlinkTime));
             //Player.immuneToDamage(1.5 sec);
@@ -245,8 +246,12 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator FreezePlayer(float t)
-    {
-        yield return new WaitForSeconds(t);
+    {       
+        yield return new WaitForSeconds(0.25f);
+        animator.SetBool("BeingHurt", false);
+        animator.SetBool("Frozen", true);
+        yield return new WaitForSeconds(t);    
+        animator.SetBool("Frozen", false);
         mirror.GetComponent<PlayerMirror>().dimensionFlip(); 
         PerformBlink();
         body.constraints = RigidbodyConstraints2D.FreezeRotation;        
