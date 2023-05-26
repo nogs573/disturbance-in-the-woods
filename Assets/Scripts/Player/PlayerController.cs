@@ -281,7 +281,7 @@ public class PlayerController : MonoBehaviour
         if (ctx.started && (isGrounded || leniencyCounter <= JUMP_LENIENCY))
         {
             isJumping = true;
-            animator.SetBool("IsJumping", true); 
+            animator.SetBool("Jump_Up", true); 
             alreadyCanceled = false;
             body.velocity = new Vector2(body.velocity.x, jumpForce);
             isGrounded = false;
@@ -294,6 +294,8 @@ public class PlayerController : MonoBehaviour
             if (ctx.canceled && body.velocity.y > 0)
             {
                 body.velocity = new Vector2(body.velocity.x, 0);
+                animator.SetBool("Jump_Down", true);
+                animator.SetBool("Jump_Up", false);
                 alreadyCanceled = true;
             }
         }
@@ -327,6 +329,8 @@ public class PlayerController : MonoBehaviour
         if (isJumping && vel.y < 0)
         {
             willLand = true;
+            animator.SetBool("Jump_Down", true);
+            animator.SetBool("Jump_Up", false);
         }
 
         if ((vel.x < 0 && !spriteRenderer.flipX) || (vel.x > 0 && spriteRenderer.flipX))
@@ -361,7 +365,7 @@ public class PlayerController : MonoBehaviour
         if (willLand && isGrounded)
         {
             isJumping = false;
-            animator.SetBool("IsJumping", false);
+            animator.SetBool("Jump_Down", false);
             willLand = false;
         }
 
