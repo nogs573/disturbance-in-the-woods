@@ -12,6 +12,7 @@ public class PatrolController : MonoBehaviour
     private Rigidbody2D enemyBody;
     private EnemyVision vision;
     private GameObject player;
+    private PlayerController playerManage;
 
     public Animator animator;
 
@@ -23,6 +24,10 @@ public class PatrolController : MonoBehaviour
     float confusedTimer = 0f;
     float AGGRO_LIMIT = 10f; //number of seconds it will stay aggro'd when it doesn't see player
     float aggroTimer = 0f;
+
+    bool pauseChase = false;
+    float PAUSE_LIMIT = 0.5f;
+    float pauseTimer = 0f;
 
     float currPosChecker;
     int sameXLimit = 10;
@@ -64,6 +69,7 @@ public class PatrolController : MonoBehaviour
         moveSpeed = patrolSpeed;
         animator.SetBool("IsRunning", true);
         player = GameObject.FindWithTag("Player");
+        playerManage = player.GetComponent<PlayerController>();
     }
 
     private void FlipEnemyFacing()
@@ -100,6 +106,8 @@ public class PatrolController : MonoBehaviour
     {
         //If patrolling Slayer sees the Player -- cone of vision
         canSeePlayer = vision.detectPlayer(viewDistance, 90f, 15, facingRight);
+
+        
 
         if (!canSeePlayer)
         {
@@ -180,26 +188,31 @@ public class PatrolController : MonoBehaviour
 
     private void doChase()
     {
-        float nextDist = moveSpeed;
-        float xDistToPlayer = player.transform.position.x - transform.position.x;
-
-        Vector2 nextMove = new Vector2(nextDist, 0);
-        if (xDistToPlayer < 0)
+        if (!pauseChase)
         {
-            if (facingRight)
+            float nextDist = moveSpeed;
+            float xDistToPlayer = player.transform.position.x - transform.position.x;
+
+            Vector2 nextMove = new Vector2(nextDist, 0);
+            if (xDistToPlayer < 0)
             {
-                FlipEnemyFacing();
+                if (facingRight)
+                {
+                    FlipEnemyFacing();
+                }
             }
-        }
-        else if (xDistToPlayer > 0)
-        {
-            if (!facingRight)
+            else if (xDistToPlayer > 0)
             {
-                FlipEnemyFacing();
-            }            
-        }
+                if (!facingRight)
+                {
+                    FlipEnemyFacing();
+                }            
+            }
 
-        enemyBody.velocity = nextMove;     
+            enemyBody.velocity = nextMove;     
+        }
+        else
+            enemyBody.velocity = new Vector2(0f, 0f);
     }
 
     private void Update() 
@@ -207,6 +220,16 @@ public class PatrolController : MonoBehaviour
         stateCheck();
 
         //Debug.Log(state);
+        if (pauseChase)
+        {
+            pauseTimer += Time.deltaTime;
+            if (pauseTimer >= PAUSE_LIMIT)
+            {
+                pauseTimer = 0;
+                pauseChase = false;
+                animator.SetBool("IsRunning", true);
+            }
+        }
 
         switch (state) 
         {
@@ -223,6 +246,12 @@ public class PatrolController : MonoBehaviour
 
             // case State.Attack:
             //     doAttack();
+    }
+
+    public void setPause()
+    {
+        pauseChase = true;
+        animator.SetBool("IsRunning", false);
     }
 
 
