@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     ParticleSystem blastAttack;
     ParticleSystem blinkEffect;
 
+    bool facingRight = true;
+
     private bool onUpper = true;
 
     private bool isInvuln = true;
@@ -154,11 +156,10 @@ public class PlayerController : MonoBehaviour
     {
         if (ctx.started)
         {
+            flipAttack(facingRight);
             animator.SetTrigger("Attacked");
-            blastAttack.Play();
+            blastAttack.Play();            
         }
-        // animator.SetBool("IsAlive", false);
-        // animator.SetTrigger("PlayDeath");
     }
 
     public void OnPeek(InputAction.CallbackContext ctx)
@@ -555,8 +556,7 @@ public class PlayerController : MonoBehaviour
 
     public void toggleActiveCamera(bool onUpper)
     {
-        if (onUpper
-)
+        if (onUpper)
         {
             topCam.m_Priority = 8;
             bottomCam.m_Priority = 10;
@@ -571,6 +571,33 @@ public class PlayerController : MonoBehaviour
     private void flipSprite()
     {
         spriteRenderer.flipX = !spriteRenderer.flipX;
+        facingRight = !facingRight;
+        if (blastAttack.isEmitting)
+        {
+            blastAttack.Stop();
+        }
+    }
+
+    private void flipAttack(bool facingRight)
+    {
+        Transform blast = blastAttack.transform;
+        if (facingRight)
+        {
+            if (blast.rotation.eulerAngles.z == 180)
+            {
+                blast.rotation = Quaternion.Euler(0f, 0f, 0f);
+                blast.position = new Vector3(body.position.x + 0.5f, body.position.y - 0.3f, 0f);
+            }   
+        }
+        else
+        {
+            if (blast.rotation.eulerAngles.z == 0)
+            {
+                blast.rotation = Quaternion.Euler(0f, 0f, 180f);
+                blast.position = new Vector3(body.position.x - 0.5f, body.position.y - 0.3f, 0f);
+            }
+        }
+        
     }
 
     public float MapRangeToPi(float value)

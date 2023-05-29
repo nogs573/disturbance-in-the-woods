@@ -29,6 +29,11 @@ public class PlayerManager : MonoBehaviour
             playerHP += amount;
     }
 
+    public void setHP(float hp)
+    {
+        playerHP = hp;
+    }
+
     public float getHP()
     {
         return playerHP;
