@@ -306,17 +306,21 @@ public class PlayerController : MonoBehaviour
                 GameObject other = collision.gameObject;
                 if (other.CompareTag("Enemy"))
                 {
-                    float hurtX = body.transform.position.x - other.transform.position.x;
-                    if (hurtX >= 0)
-                        knockRight = true;
-                    else
-                        knockRight = false;
-                    animator.SetBool("BeingHurt", true);
-                    isInvuln = true;
-                    StartCoroutine(HurtPlayer());
-                    PlayerManager.takeDamage(20); 
-                    isKnockedBack = true;           
-                    other.gameObject.GetComponent<PatrolController>().setPause();    
+                    EnemyManager currEnemy = other.GetComponent<EnemyManager>();
+                    if (currEnemy.getAlive())
+                    {
+                        float hurtX = body.transform.position.x - other.transform.position.x;
+                        if (hurtX >= 0)
+                            knockRight = true;
+                        else
+                            knockRight = false;
+                        animator.SetBool("BeingHurt", true);
+                        isInvuln = true;
+                        StartCoroutine(HurtPlayer());
+                        PlayerManager.takeDamage(currEnemy.getAttackPower()); 
+                        isKnockedBack = true;           
+                        other.gameObject.GetComponent<PatrolController>().setPause();  
+                    }  
                 }
             }
         }

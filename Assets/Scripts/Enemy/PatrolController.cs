@@ -13,8 +13,13 @@ public class PatrolController : MonoBehaviour
     private EnemyVision vision;
     private GameObject player;
     private PlayerController playerManage;
+    private EnemyManager enemyManager;
+
+    private float DESPAWN_LIMIT = 2f;
+    private float despawnTimer = 0f;
 
     public Animator animator;
+    SpriteRenderer sprite;
 
     float viewDistance = 10f;
 
@@ -45,7 +50,8 @@ public class PatrolController : MonoBehaviour
         Patrol,
         Chase,
         Confused,
-        Attack
+        Attack,
+        Dead
     }
 
     public void OnPlayerBlink()
@@ -70,6 +76,8 @@ public class PatrolController : MonoBehaviour
         animator.SetBool("IsRunning", true);
         player = GameObject.FindWithTag("Player");
         playerManage = player.GetComponent<PlayerController>();
+        enemyManager = transform.GetComponent<EnemyManager>();
+        sprite = transform.GetComponent<SpriteRenderer>();
     }
 
     private void FlipEnemyFacing()
@@ -107,36 +115,43 @@ public class PatrolController : MonoBehaviour
         //If patrolling Slayer sees the Player -- cone of vision
         canSeePlayer = vision.detectPlayer(viewDistance, 90f, 15, facingRight);
 
-        
-
-        if (!canSeePlayer)
+        if (enemyManager.getHP() <= 0)
         {
-            aggroTimer += Time.deltaTime;
-            if (aggroTimer > AGGRO_LIMIT)
+            state = State.Dead;
+            animator.SetTrigger("Death");
+
+        }
+        else
+        {
+            if (!canSeePlayer)
             {
-                //trigger the confused state -> then patrol
-                playerBlinked = true;
-                aggroTimer = 0;
+                aggroTimer += Time.deltaTime;
+                if (aggroTimer > AGGRO_LIMIT)
+                {
+                    //trigger the confused state -> then patrol
+                    playerBlinked = true;
+                    aggroTimer = 0;
+                }
             }
-        }
 
-        if ((state == State.Patrol || state == State.Confused) && canSeePlayer) 
-        {
-            playerBlinked = false;  
-            if (!animator.GetBool("IsRunning"))
-                animator.SetBool("IsRunning", true);
-            state = State.Chase;
-            float newSpeed = chaseSpeed;
-            if (!facingRight)
-                newSpeed *= -1;
-            moveSpeed = newSpeed;
-        }
-        else if (state == State.Chase && playerBlinked)
-        {
-            state = State.Confused;
-            animator.SetBool("IsRunning", false);
-            confusedTimer = 0;
-            enemyBody.velocity = new Vector2(0f, 0f);
+            if ((state == State.Patrol || state == State.Confused) && canSeePlayer) 
+            {
+                playerBlinked = false;  
+                if (!animator.GetBool("IsRunning"))
+                    animator.SetBool("IsRunning", true);
+                state = State.Chase;
+                float newSpeed = chaseSpeed;
+                if (!facingRight)
+                    newSpeed *= -1;
+                moveSpeed = newSpeed;
+            }
+            else if (state == State.Chase && playerBlinked)
+            {
+                state = State.Confused;
+                animator.SetBool("IsRunning", false);
+                confusedTimer = 0;
+                enemyBody.velocity = new Vector2(0f, 0f);
+            }
         }
     }
 
@@ -215,6 +230,33 @@ public class PatrolController : MonoBehaviour
             enemyBody.velocity = new Vector2(0f, 0f);
     }
 
+    private void doDead()
+    {
+        enemyBody.velocity = new Vector2(0f, 0f);
+        despawnTimer += Time.deltaTime;
+
+        if (despawnTimer >= DESPAWN_LIMIT)
+        {
+            StartCoroutine(FadeOut());
+        }
+    }
+
+    private IEnumerator FadeOut()
+     {
+         float alphaVal = sprite.color.a;
+         Color tmp = sprite.color;
+ 
+         while (sprite.color.a < 1)
+         {
+             alphaVal += 0.01f;
+             tmp.a = alphaVal;
+             sprite.color = tmp;
+ 
+             yield return new WaitForSeconds(0.05f); // update interval
+         }
+         Destroy(transform.gameObject);
+     }
+
     private void Update() 
     {
         stateCheck();
@@ -241,6 +283,9 @@ public class PatrolController : MonoBehaviour
                 break;      
             case State.Confused:
                 doConfused();
+                break;
+            case State.Dead:
+                doDead();
                 break;
         }
 
