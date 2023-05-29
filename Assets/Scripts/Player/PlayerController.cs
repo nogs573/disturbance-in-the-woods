@@ -18,8 +18,14 @@ public class PlayerController : MonoBehaviour
     private Tilemap lowerTilemap;
 
     PlayerManager PlayerManager;
+    ParticleSystem blastAttack;
+    ParticleSystem blinkEffect;
 
     private bool onUpper = true;
+
+    private bool isInvuln = true;
+    private float INVULN_LIMIT = 1.5f; //1 second of invuln after getting hit
+    private float invulnTimer = 0;
 
     private PlayerInputs defaultPlayerActions;
     private InputAction moveAction;
@@ -36,6 +42,17 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D body;
     private float speed = 8f;
+
+    private bool playerIsDead = false;
+    private bool beingHurt = false;
+    private bool willDie = false;
+
+    private bool isKnockedBack = false;
+    private float KNOCKBACK_TIME = 1f;
+    private float knockbackTimer = 0;
+    private float maxXKnockback = 5f;
+    private float maxYKnockback = 4f;
+    private bool knockRight = false;
 
     private bool isGrounded = true;
     private bool isJumping = false;
@@ -95,7 +112,11 @@ public class PlayerController : MonoBehaviour
     //On start instead of awake to give time for LevelManager to calculate it.
     private void Start() 
     {
-        DIMENSION_DIF = level.getDimDiff();        
+        DIMENSION_DIF = level.getDimDiff(); 
+        blastAttack = GameObject.FindWithTag("BlastAttack").GetComponent<ParticleSystem>();
+        blinkEffect = GameObject.FindWithTag("BlinkEffect").GetComponent<ParticleSystem>();
+        blastAttack.Pause();
+        blinkEffect.Pause();
     }
 
     private void OnEnable() 
@@ -134,6 +155,7 @@ public class PlayerController : MonoBehaviour
         if (ctx.started)
         {
             animator.SetTrigger("Attacked");
+            blastAttack.Play();
         }
         // animator.SetBool("IsAlive", false);
         // animator.SetTrigger("PlayDeath");
@@ -170,15 +192,19 @@ public class PlayerController : MonoBehaviour
 
     public void OnBlink(InputAction.CallbackContext ctx)
     {
-        if (ctx.started && !isPeeking)
+        if (!playerIsDead)
         {
-           PerformBlink();
-           animator.SetTrigger("Blinked");
-        }        
+            if (ctx.started && !isPeeking)
+            {
+                PerformBlink();
+                animator.SetTrigger("Blinked");
+            }  
+        }      
     }
 
     private void PerformBlink()
     {
+        blinkEffect.Emit(30);
         isBlinking = true;       
         
         //Swap places with mirror and switch active camera
@@ -239,6 +265,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("BeingHurt", true);
             //animator.SetTrigger("DamageTaken");
             body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            // StartCoroutine(HurtPlayer());
             StartCoroutine(FreezePlayer(badBlinkTime));
             //Player.immuneToDamage(1.5 sec);
             //Player.switchAnimation(blinking) "show that player is invulnerable for a little bit           
@@ -247,14 +274,18 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator HurtPlayer() 
     {
+        beingHurt = true;
         yield return new WaitForSeconds(0.25f);
         animator.SetBool("BeingHurt", false);
+        beingHurt = false;
     }
 
     IEnumerator FreezePlayer(float t)
     {       
+        beingHurt = true;
         yield return new WaitForSeconds(0.25f);
         animator.SetBool("BeingHurt", false);
+        beingHurt = false;
         animator.SetBool("Frozen", true);
         yield return new WaitForSeconds(t);    
         animator.SetBool("Frozen", false);
@@ -269,13 +300,23 @@ public class PlayerController : MonoBehaviour
     {
         if (!isBlinking)
         {        
-            GameObject other = collision.gameObject;
-            if (other.CompareTag("Enemy"))
+            if (!isInvuln)
             {
-                Vector2 hurtVector = body.transform.position - other.transform.position;
-                animator.SetBool("BeingHurt", true);
-                StartCoroutine(HurtPlayer());
-                PlayerManager.takeDamage(10);                
+                GameObject other = collision.gameObject;
+                if (other.CompareTag("Enemy"))
+                {
+                    float hurtX = body.transform.position.x - other.transform.position.x;
+                    if (hurtX >= 0)
+                        knockRight = true;
+                    else
+                        knockRight = false;
+                    animator.SetBool("BeingHurt", true);
+                    isInvuln = true;
+                    StartCoroutine(HurtPlayer());
+                    PlayerManager.takeDamage(20); 
+                    isKnockedBack = true;           
+                    other.gameObject.GetComponent<PatrolController>().setPause();    
+                }
             }
         }
         else //player just blinked
@@ -283,8 +324,6 @@ public class PlayerController : MonoBehaviour
             if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Void"))
             {
                 //Player.takeDamage(collision.gameObject.damageAmount);
-                //Remove ability for player to move
-                OnDisable();
             }
             isBlinking = false;
         }                
@@ -321,8 +360,11 @@ public class PlayerController : MonoBehaviour
         body.position = new Vector2(startingX, 1.0f);
         mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
 
-        animator.SetTrigger("Respawn");
-        animator.SetBool("IsAlive", true);
+        animator.SetBool("IsDead", false);
+        animator.SetTrigger("Respawn");    
+        PlayerManager.setHP(PlayerManager.getMaxHP()); 
+        playerIsDead = false;  
+        unlockPlayer(); 
 
         toggleLights(false);
 
@@ -333,11 +375,66 @@ public class PlayerController : MonoBehaviour
         bottomCam.m_Priority = 8;
     }
 
-    private void FixedUpdate() 
+    IEnumerator KillPlayer() 
     {
+        yield return new WaitForSeconds(0.5f);
+        animator.SetBool("IsDying", false);
+        animator.SetBool("IsDead", true);
+    }
+
+    private void FixedUpdate() 
+    {        
         Vector2 moveDir = moveAction.ReadValue<Vector2>();
         Vector2 vel = body.velocity;
-        vel.x = speed * moveDir.x;
+
+        if (checkPlayerDead() && !playerIsDead)
+        {   
+            willDie = true;
+            playerIsDead = true;
+        }
+        if (willDie && !beingHurt)
+        {
+            willDie = false;
+            animator.SetBool("IsDying", true);  
+            StartCoroutine(KillPlayer());
+        }
+
+        if (isInvuln)
+        {
+            invulnTimer += Time.deltaTime;
+            if (invulnTimer >= INVULN_LIMIT)
+            {
+                isInvuln = false;
+                invulnTimer = 0;
+            }
+        }
+
+        if (isKnockedBack)
+        {
+            float yKnock = MapRangeToPi(knockbackTimer);
+            float yKnockback = Mathf.Sin(yKnock) * maxYKnockback;
+            float xKnockback = maxXKnockback;
+
+            if (knockRight == false) 
+            {
+                xKnockback *= -1;
+            }
+
+            Vector2 knockbackForce = new Vector2(xKnockback, yKnockback);
+            vel = knockbackForce;     
+
+            knockbackTimer += Time.deltaTime;
+            if (knockbackTimer >= KNOCKBACK_TIME)
+            {
+                isKnockedBack = false;
+                knockbackTimer = 0;
+            }
+        }
+        else
+        {       
+            vel.x = speed * moveDir.x;            
+        }
+
         animator.SetFloat("xSpeed", Mathf.Abs(vel.x));
 
         //Player is going down
@@ -348,18 +445,24 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Jump_Up", false);
         }
 
-        if ((vel.x < 0 && !spriteRenderer.flipX) || (vel.x > 0 && spriteRenderer.flipX))
+        if (!playerIsDead && ((vel.x < 0 && !spriteRenderer.flipX) || (vel.x > 0 && spriteRenderer.flipX)))
         {
             flipSprite();
         }
 
+        //If we're peeking, player can't move
         if (isPeeking)
         {
-            body.velocity = vel * 0; 
+            body.velocity = vel * 0;
         }
         else
         {
-            body.velocity = vel; 
+            body.velocity = vel;
+        }
+
+        if (playerIsDead && isGrounded)
+        {
+            lockPlayer();
         }
 
         //No choice but to check if touching the ground here, because if 
@@ -410,6 +513,26 @@ public class PlayerController : MonoBehaviour
     //--------------------------------------------------------------
     //Helper methods
 
+    public void lockPlayer()
+    {
+        body.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+    }
+    
+    public void unlockPlayer()
+    {
+        body.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
+    public bool getPlayerDead()
+    {
+        return playerIsDead;
+    }
+
+    public bool getPlayerHurt()
+    {
+        return beingHurt;
+    }
+
     public void toggleCameraFollow(bool onUpper)
     {
         if (onUpper)
@@ -448,5 +571,16 @@ public class PlayerController : MonoBehaviour
     private void flipSprite()
     {
         spriteRenderer.flipX = !spriteRenderer.flipX;
+    }
+
+    public float MapRangeToPi(float value)
+    {
+        float mappedValue = Mathf.Lerp(Mathf.PI/2, 3*Mathf.PI/2, value);
+        return mappedValue;
+    }
+
+    public bool checkPlayerDead()
+    {
+        return PlayerManager.getHP() <= 0;
     }
 }

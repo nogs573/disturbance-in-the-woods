@@ -13,6 +13,8 @@ TagManager:
   - LevelManager
   - Enemy
   - PatrolPoint
+  - BlastAttack
+  - BlinkEffect
   layers:
   - Default
   - TransparentFX
