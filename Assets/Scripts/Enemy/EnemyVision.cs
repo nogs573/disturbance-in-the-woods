@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class EnemyVision : MonoBehaviour
 {
-    public LayerMask CanDetectPlayer;
+    public LayerMask playerAndGround;
 
     //Cone of vision for the enemy
     public bool detectPlayer(float visionRange, float coneAngle, int rayCount, bool facingRight)
-    {
+    {        
         bool playerFound = false;
         float angleIncrement = coneAngle / rayCount;
         //Which direction to aim the cone
@@ -23,10 +23,12 @@ public class EnemyVision : MonoBehaviour
 
             Vector2 rayDirection = Quaternion.Euler(0, 0, currentAngle) * facingDir;
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, visionRange, CanDetectPlayer);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, visionRange, playerAndGround);
 
             if (hit.collider != null && hit.collider.CompareTag("Player"))
+            {
                 playerFound = true;
+            }
         }
 
         return playerFound;

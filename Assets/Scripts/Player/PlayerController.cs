@@ -48,7 +48,6 @@ public class PlayerController : MonoBehaviour
 
     //for debuggin purposes
     private InputAction resetAction;
-    private float startingX = 0.5f;
 
     private Rigidbody2D body;
     private float speed = 8f;

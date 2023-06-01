@@ -1000,7 +1000,7 @@ GameObject:
   - component: {fileID: 603155527}
   - component: {fileID: 603155528}
   - component: {fileID: 603155529}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint-0
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -59025,6 +59025,14 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 405114700}
+    - target: {fileID: 6402970695704012899, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
+      propertyPath: IgnoreEnemy.m_Bits
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 6402970695704012899, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
+      propertyPath: playerAndGround.m_Bits
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 6402970695704012920, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -59567,6 +59575,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 9104366225334644926, guid: caae791c2bed4a64ebc35988d50b0e99, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9104366225444685628, guid: caae791c2bed4a64ebc35988d50b0e99, type: 3}
       propertyPath: m_TagString
       value: Light
@@ -59584,7 +59596,7 @@ GameObject:
   - component: {fileID: 991211806}
   - component: {fileID: 991211807}
   - component: {fileID: 991211808}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint-2
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -110388,7 +110400,7 @@ GameObject:
   - component: {fileID: 1799692500}
   - component: {fileID: 1799692501}
   - component: {fileID: 1799692502}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint-1
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -111407,6 +111419,14 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 405114700}
+    - target: {fileID: 6402970695704012899, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
+      propertyPath: IgnoreEnemy.m_Bits
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 6402970695704012899, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
+      propertyPath: playerAndGround.m_Bits
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 6402970695704012920, guid: ddae42ddf8e118e40a9890d084dc5503, type: 3}
       propertyPath: m_RootOrder
       value: 0
