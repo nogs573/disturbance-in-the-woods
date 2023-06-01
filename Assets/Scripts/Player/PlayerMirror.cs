@@ -11,13 +11,17 @@ public class PlayerMirror : MonoBehaviour
     private LevelManager level;
     PlayerController playerControl;
 
-    private void Start() 
+    private void Awake() 
     {
         level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();
         Player = GameObject.FindGameObjectsWithTag("Player")[0];
         playerControl = Player.GetComponent<PlayerController>();
+        DIMENSION_DIF = -21.45f;
+    }
 
-        DIMENSION_DIF = level.getDimDiff() * -1;
+    private void Start() 
+    {
+        
     }
     
     private void FixedUpdate() 

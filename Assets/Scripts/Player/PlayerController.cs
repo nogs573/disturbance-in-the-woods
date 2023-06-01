@@ -19,6 +19,11 @@ public class PlayerController : MonoBehaviour
 
     PlayerManager PlayerManager;
     ParticleSystem blastAttack;
+    AudioSource blastSound;
+    AudioSource blinkSound;
+    AudioSource hurtSound;
+
+
     ParticleSystem blinkEffect;
 
     bool facingRight = true;
@@ -89,7 +94,6 @@ public class PlayerController : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         defaultPlayerActions = new PlayerInputs();
-        animator.SetBool("IsAlive", true);
 
         level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();       
         
@@ -103,20 +107,27 @@ public class PlayerController : MonoBehaviour
         upperTilemap = terrains[0].GetComponent<Tilemap>();
         lowerTilemap = terrains[1].GetComponent<Tilemap>();
 
-        PlayerManager = transform.GetComponent<PlayerManager>();
+        PlayerManager = GetComponent<PlayerManager>();
 
-        foreach (GameObject light in allLights)
-        {
-            light.SetActive(false);
-        }
+        blastAttack = GameObject.FindWithTag("BlastAttack").GetComponent<ParticleSystem>();
+        blinkEffect = GameObject.FindWithTag("BlinkEffect").GetComponent<ParticleSystem>();
+        blastSound = blastAttack.GetComponent<AudioSource>();
+        blinkSound = blinkEffect.GetComponent<AudioSource>();
+        hurtSound = transform.gameObject.GetComponent<AudioSource>();
+
     }
 
     //On start instead of awake to give time for LevelManager to calculate it.
     private void Start() 
-    {
-        DIMENSION_DIF = level.getDimDiff(); 
-        blastAttack = GameObject.FindWithTag("BlastAttack").GetComponent<ParticleSystem>();
-        blinkEffect = GameObject.FindWithTag("BlinkEffect").GetComponent<ParticleSystem>();
+    {       
+        animator.SetBool("IsAlive", true);
+        DIMENSION_DIF = 21.45f;
+
+        foreach (GameObject light in allLights)
+        {
+            light.SetActive(false);
+        }   
+
         blastAttack.Pause();
         blinkEffect.Pause();
     }
@@ -152,13 +163,20 @@ public class PlayerController : MonoBehaviour
         resetAction.Disable();
     }
 
+    public void OnQuit(InputAction.CallbackContext ctx)
+    {
+        if (ctx.started)
+            Application.Quit();        
+    }
+
     public void OnAttack(InputAction.CallbackContext ctx)
     {
         if (ctx.started)
         {
             flipAttack(facingRight);
             animator.SetTrigger("Attacked");
-            blastAttack.Play();            
+            blastAttack.Play();   
+            blastSound.Play();         
         }
     }
 
@@ -206,6 +224,7 @@ public class PlayerController : MonoBehaviour
     private void PerformBlink()
     {
         blinkEffect.Emit(30);
+        blinkSound.Play();
         isBlinking = true;       
         
         //Swap places with mirror and switch active camera
@@ -276,6 +295,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator HurtPlayer() 
     {
         beingHurt = true;
+        hurtSound.Play();
         yield return new WaitForSeconds(0.25f);
         animator.SetBool("BeingHurt", false);
         beingHurt = false;
@@ -284,6 +304,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator FreezePlayer(float t)
     {       
         beingHurt = true;
+        hurtSound.Play();
         yield return new WaitForSeconds(0.25f);
         animator.SetBool("BeingHurt", false);
         beingHurt = false;
