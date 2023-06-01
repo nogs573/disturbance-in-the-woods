@@ -17,7 +17,6 @@ public class EndFlag : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             endText.SetActive(true);
-            Debug.Log("Finished game!");
         }
     }
 }
