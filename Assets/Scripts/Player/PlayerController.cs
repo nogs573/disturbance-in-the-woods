@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     AudioSource hurtSound;
 
     private Vector3 checkpointPos;
+    private Vector3 startingPos;
 
 
     ParticleSystem blinkEffect;
@@ -133,7 +134,8 @@ public class PlayerController : MonoBehaviour
         blastAttack.Pause();
         blinkEffect.Pause();
 
-        checkpointPos = body.position;
+        startingPos = body.position;
+        checkpointPos = startingPos;
     }
 
     private void OnEnable() 
@@ -387,20 +389,23 @@ public class PlayerController : MonoBehaviour
 
     public void OnReset(InputAction.CallbackContext ctx) 
     {
-        body.position = checkpointPos;
-        //mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
-
         animator.SetBool("IsDead", false);        
         animator.SetTrigger("Respawn");  
         if (playerIsDead)
         {
+            checkpointPos = startingPos;
             PlayerManager.setHP(PlayerManager.getMaxHP());   
-            playerIsDead = false;  
+            playerIsDead = false;
         }
+        
+        body.position = checkpointPos;
         
         unlockPlayer(); 
 
         toggleLights(false);
+
+        if (!onUpper)
+            mirror.GetComponent<PlayerMirror>().dimensionFlip();
 
         onUpper = true;
         topCam.m_Follow = transform;
