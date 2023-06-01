@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float peekSpeed = 1f;
     private int peekDir = -1;
 
-    GameObject[] allLights;
+    //GameObject[] allLights;
 
     public bool isPeeking = false;
     private bool isBlinking = false;
@@ -103,7 +103,7 @@ public class PlayerController : MonoBehaviour
         topCam = GameObject.FindGameObjectsWithTag("TopCam")[0].GetComponent<CinemachineVirtualCamera>();
         bottomCam = GameObject.FindGameObjectsWithTag("BottomCam")[0].GetComponent<CinemachineVirtualCamera>();
         peekCam = GameObject.FindGameObjectsWithTag("PeekCam")[0].GetComponent<CinemachineVirtualCamera>();
-        allLights = GameObject.FindGameObjectsWithTag("Light");
+        //allLights = GameObject.FindGameObjectsWithTag("Light");
 
         GameObject[] terrains = GameObject.FindGameObjectsWithTag("Ground");
         upperTilemap = terrains[0].GetComponent<Tilemap>();
@@ -113,6 +113,8 @@ public class PlayerController : MonoBehaviour
 
         blastAttack = GameObject.FindWithTag("BlastAttack").GetComponent<ParticleSystem>();
         blinkEffect = GameObject.FindWithTag("BlinkEffect").GetComponent<ParticleSystem>();
+        blastAttack.Pause();
+        blinkEffect.Pause();
         blastSound = blastAttack.GetComponent<AudioSource>();
         blinkSound = blinkEffect.GetComponent<AudioSource>();
         hurtSound = transform.gameObject.GetComponent<AudioSource>();
@@ -125,13 +127,13 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsAlive", true);
         DIMENSION_DIF = 21.45f;
 
-        foreach (GameObject light in allLights)
-        {
-            light.SetActive(false);
-        }   
+        // foreach (GameObject light in allLights)
+        // {
+        //     light.SetActive(false);
+        // }   
 
-        blastAttack.Pause();
-        blinkEffect.Pause();
+        // blastAttack.Pause();
+        // blinkEffect.Pause();
 
         startingPos = body.position;
         checkpointPos = startingPos;
@@ -235,7 +237,7 @@ public class PlayerController : MonoBehaviour
         //Swap places with mirror and switch active camera
         transform.position = mirror.transform.position;
         toggleCameraFollow(onUpper);
-        toggleLights(onUpper);
+        //toggleLights(onUpper);
         toggleActiveCamera(onUpper);
         onUpper = !onUpper;
 
@@ -401,7 +403,7 @@ public class PlayerController : MonoBehaviour
         
         unlockPlayer(); 
 
-        toggleLights(false);
+        //toggleLights(false);
 
         if (!onUpper)
             mirror.GetComponent<PlayerMirror>().dimensionFlip();
@@ -590,11 +592,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void toggleLights(bool onUpper)
-    {
-        foreach (GameObject light in allLights)
-            light.SetActive(onUpper); //SetActive(true) if going down
-    }
+    // public void toggleLights(bool onUpper)
+    // {
+    //     foreach (GameObject light in allLights)
+    //         light.SetActive(onUpper); //SetActive(true) if going down
+    // }
 
     public void toggleActiveCamera(bool onUpper)
     {
