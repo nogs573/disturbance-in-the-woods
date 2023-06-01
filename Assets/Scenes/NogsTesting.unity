@@ -334,8 +334,8 @@ GameObject:
   m_Component:
   - component: {fileID: 109608121}
   m_Layer: 0
-  m_Name: Checkpoint-0
-  m_TagString: Untagged
+  m_Name: Position-1
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -348,7 +348,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 109608120}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.087, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -968,8 +968,8 @@ GameObject:
   m_Component:
   - component: {fileID: 476664167}
   m_Layer: 0
-  m_Name: Checkpoint-0
-  m_TagString: Untagged
+  m_Name: Position-2
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -982,7 +982,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 476664166}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3.4, y: 0.384, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1000,7 +1000,7 @@ GameObject:
   - component: {fileID: 603155527}
   - component: {fileID: 603155528}
   m_Layer: 0
-  m_Name: CheckWall-0
+  m_Name: CheckPoint-0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59710,7 +59710,7 @@ GameObject:
   - component: {fileID: 991211806}
   - component: {fileID: 991211807}
   m_Layer: 0
-  m_Name: CheckWall-2
+  m_Name: CheckPoint-2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59784,8 +59784,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1039249085}
   m_Layer: 0
-  m_Name: Checkpoint-0
-  m_TagString: Untagged
+  m_Name: Position-0
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -59798,7 +59798,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039249084}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 2.9, y: 0.287, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -110380,7 +110380,7 @@ GameObject:
   - component: {fileID: 1799692500}
   - component: {fileID: 1799692501}
   m_Layer: 0
-  m_Name: CheckWall-1
+  m_Name: CheckPoint-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

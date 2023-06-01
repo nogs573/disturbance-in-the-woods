@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     AudioSource blinkSound;
     AudioSource hurtSound;
 
+    private Vector3 checkpointPos;
+
 
     ParticleSystem blinkEffect;
 
@@ -130,6 +132,8 @@ public class PlayerController : MonoBehaviour
 
         blastAttack.Pause();
         blinkEffect.Pause();
+
+        checkpointPos = body.position;
     }
 
     private void OnEnable() 
@@ -383,13 +387,17 @@ public class PlayerController : MonoBehaviour
 
     public void OnReset(InputAction.CallbackContext ctx) 
     {
-        body.position = new Vector2(startingX, 1.0f);
-        mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
+        body.position = checkpointPos;
+        //mirror.transform.position = new Vector2(startingX, -1 * DIMENSION_DIF + 1);
 
-        animator.SetBool("IsDead", false);
-        animator.SetTrigger("Respawn");    
-        PlayerManager.setHP(PlayerManager.getMaxHP()); 
-        playerIsDead = false;  
+        animator.SetBool("IsDead", false);        
+        animator.SetTrigger("Respawn");  
+        if (playerIsDead)
+        {
+            PlayerManager.setHP(PlayerManager.getMaxHP());   
+            playerIsDead = false;  
+        }
+        
         unlockPlayer(); 
 
         toggleLights(false);
@@ -538,6 +546,11 @@ public class PlayerController : MonoBehaviour
 
     //--------------------------------------------------------------
     //Helper methods
+
+    public void SetCheckpoint(Vector3 pos)
+    {
+        checkpointPos = pos;
+    }
 
     public void lockPlayer()
     {
