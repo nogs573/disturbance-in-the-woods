@@ -15,7 +15,7 @@ public class PatrolController : MonoBehaviour
     private PlayerController playerManage;
     private EnemyManager enemyManager;
 
-    private float DESPAWN_LIMIT = 2f;
+    private float DESPAWN_LIMIT = 1f;
     private float despawnTimer = 0f;
 
     public Animator animator;
@@ -27,7 +27,7 @@ public class PatrolController : MonoBehaviour
     bool canSeePlayer = false;
     float CONFUSED_LIMIT = 5f;
     float confusedTimer = 0f;
-    float AGGRO_LIMIT = 10f; //number of seconds it will stay aggro'd when it doesn't see player
+    float AGGRO_LIMIT = 6f; //number of seconds it will stay aggro'd when it doesn't see player
     float aggroTimer = 0f;
 
     bool pauseChase = false;
