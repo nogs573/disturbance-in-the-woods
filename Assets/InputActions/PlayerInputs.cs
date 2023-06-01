@@ -89,6 +89,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""f9c6de52-62af-4a76-9436-361925c15912"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -226,6 +235,17 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""40054b6a-7b7d-41d1-8ecd-84cba9cee3f9"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Blink"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""616acdb3-f54c-4470-9f81-664f9394c4b4"",
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
@@ -238,7 +258,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""8c79a1e5-5dfe-4eaf-ab14-4b1772d35599"",
-                    ""path"": ""<Gamepad>/select"",
+                    ""path"": ""<Gamepad>/start"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
@@ -364,6 +384,28 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Peek"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bde9fcc4-3da9-4798-be3c-6791c91cef37"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fafbbcd4-6c4c-43b6-9b41-92a7a9d88027"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Quit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -958,6 +1000,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_Player_Blink = m_Player.FindAction("Blink", throwIfNotFound: true);
         m_Player_Peek = m_Player.FindAction("Peek", throwIfNotFound: true);
         m_Player_ResetPos = m_Player.FindAction("ResetPos", throwIfNotFound: true);
+        m_Player_Quit = m_Player.FindAction("Quit", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1038,6 +1081,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Blink;
     private readonly InputAction m_Player_Peek;
     private readonly InputAction m_Player_ResetPos;
+    private readonly InputAction m_Player_Quit;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -1049,6 +1093,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @Blink => m_Wrapper.m_Player_Blink;
         public InputAction @Peek => m_Wrapper.m_Player_Peek;
         public InputAction @ResetPos => m_Wrapper.m_Player_ResetPos;
+        public InputAction @Quit => m_Wrapper.m_Player_Quit;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1079,6 +1124,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @ResetPos.started += instance.OnResetPos;
             @ResetPos.performed += instance.OnResetPos;
             @ResetPos.canceled += instance.OnResetPos;
+            @Quit.started += instance.OnQuit;
+            @Quit.performed += instance.OnQuit;
+            @Quit.canceled += instance.OnQuit;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1104,6 +1152,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @ResetPos.started -= instance.OnResetPos;
             @ResetPos.performed -= instance.OnResetPos;
             @ResetPos.canceled -= instance.OnResetPos;
+            @Quit.started -= instance.OnQuit;
+            @Quit.performed -= instance.OnQuit;
+            @Quit.canceled -= instance.OnQuit;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1293,6 +1344,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnBlink(InputAction.CallbackContext context);
         void OnPeek(InputAction.CallbackContext context);
         void OnResetPos(InputAction.CallbackContext context);
+        void OnQuit(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
