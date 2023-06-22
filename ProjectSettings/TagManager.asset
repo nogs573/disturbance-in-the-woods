@@ -16,6 +16,7 @@ TagManager:
   - BlastAttack
   - BlinkEffect
   - Checkpoint
+  - Timer
   layers:
   - Default
   - TransparentFX
