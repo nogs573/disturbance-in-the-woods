@@ -397,11 +397,9 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsDead", false);        
             animator.SetTrigger("Respawn");  
-            if (playerIsDead)
-            {
-                PlayerManager.setHP(PlayerManager.getMaxHP());   
-                playerIsDead = false;
-            }
+
+            PlayerManager.setHP(PlayerManager.getMaxHP());   
+            playerIsDead = false;
             
             unlockPlayer(); 
 
