@@ -23,4 +23,9 @@ public class EndFlag : MonoBehaviour
             timer.StopTimer();
         }
     }
+
+    public void hideText()
+    {
+        endText.SetActive(false);
+    }
 }

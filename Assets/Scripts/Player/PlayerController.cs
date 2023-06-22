@@ -89,6 +89,8 @@ public class PlayerController : MonoBehaviour
     private float currPeekY;
     private bool stoppedPeeking = false;
 
+    GameObject[] endFlags;
+
 
     //GameObject[] allLights;
 
@@ -127,6 +129,8 @@ public class PlayerController : MonoBehaviour
         blastSound = blastAttack.GetComponent<AudioSource>();
         blinkSound = blinkEffect.GetComponent<AudioSource>();
         hurtSound = transform.gameObject.GetComponent<AudioSource>();
+
+        endFlags = GameObject.FindGameObjectsWithTag("Finish");
 
     }
 
@@ -416,6 +420,11 @@ public class PlayerController : MonoBehaviour
             body.position = startingPos;
             isAtStart = true;
             timer.ResetTimer();
+
+            foreach (GameObject flagObject in endFlags)
+            {
+                flagObject.GetComponent<EndFlag>().hideText();
+            }   
         }
     }
 

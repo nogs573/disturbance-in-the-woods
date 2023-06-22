@@ -11,9 +11,13 @@ public class CheckpointUpdate : MonoBehaviour
     void Start()
     {
         player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-        GameObject[] allCheckPoints = GameObject.FindGameObjectsWithTag("Checkpoint");
-        checkPointPos = allCheckPoints[whichCheckpoint].transform.GetChild(0).position;
-        
+        if (whichCheckpoint == 0)
+            checkPointPos = GameObject.FindWithTag("Checkpoint-0").transform.GetChild(0).position; 
+        else if (whichCheckpoint == 1)
+            checkPointPos = GameObject.FindWithTag("Checkpoint-1").transform.GetChild(0).position; 
+        else if (whichCheckpoint == 2)
+            checkPointPos = GameObject.FindWithTag("Checkpoint-2").transform.GetChild(0).position; 
+               
     }
 
     void OnTriggerEnter2D(Collider2D other) 
