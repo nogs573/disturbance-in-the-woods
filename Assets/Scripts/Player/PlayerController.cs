@@ -82,6 +82,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float peekSpeed = 1f;
     private int peekDir = -1;
+    //save the original Y value of the peek cam so we can scroll back to it
+    private float currPeekY;
+    private bool stoppedPeeking = false;
+
 
     //GameObject[] allLights;
 
@@ -187,41 +191,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnPeek(InputAction.CallbackContext ctx)
-    {
-        if (ctx.started && isGrounded)
-        {
-            isPeeking = true;
-            if (onUpper)
-            {
-                peekCamPos = topCam.transform.position;
-                peekCam.transform.position = peekCamPos;
-                peekDir = -1;
-            }
-            else
-            {
-                peekCamPos = bottomCam.transform.position;
-                peekCam.transform.position = peekCamPos;
-                peekDir = 1;
-            }
-            
-            peekCam.m_Priority = 11;
-        }
-
-        if (ctx.canceled)
-        {
-            isPeeking = false;
-            peekCam.m_Priority = 5;
-        }
-        //Debug.Log("Player is peeking down");
-    }
-
     public void OnBlink(InputAction.CallbackContext ctx)
     {
         if (!playerIsDead)
         {
-            if (ctx.started && !isPeeking)
+            if (ctx.started)
             {
+                if (isPeeking)
+                {
+                    isPeeking = false;
+                    stoppedPeeking = false;
+                    peekCam.m_Priority = 5;
+                }
                 PerformBlink();
                 animator.SetTrigger("Blinked");
             }  
@@ -490,15 +471,7 @@ public class PlayerController : MonoBehaviour
             flipSprite();
         }
 
-        //If we're peeking, player can't move
-        if (isPeeking)
-        {
-            body.velocity = vel * 0;
-        }
-        else
-        {
-            body.velocity = vel;
-        }
+        body.velocity = vel;
 
         if (playerIsDead && isGrounded)
         {
@@ -538,20 +511,88 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void LateUpdate() 
+    public void OnPeek(InputAction.CallbackContext ctx)
     {
-        float peekAmount = peekDir * peekSpeed * Time.deltaTime;
+        if (ctx.started)
+        {
+                if (onUpper)
+                {
+                    if (!isPeeking)
+                    {
+                        currPeekY = topCam.transform.position.y;
+                        peekCamPos = topCam.transform.position;
+                        peekCam.transform.position = peekCamPos;
+                    }
+                    peekDir = -1;
+                }
+                else
+                {
+                    if (!isPeeking)
+                    {
+                        currPeekY = bottomCam.transform.position.y;
+                        peekCamPos = bottomCam.transform.position;
+                        peekCam.transform.position = peekCamPos;
+                    }
+                    peekDir = 1;
+                }
+
+                isPeeking = true;                
+                peekCam.m_Priority = 11;
+        }
+
+        if (ctx.canceled)
+        {
+            stoppedPeeking = true;
+            if (onUpper)
+                peekDir = 1;
+            else
+                peekDir = -1;
+        }
+        //Debug.Log("Player is peeking down");
+    }
+
+    private void LateUpdate() 
+    {  
+        if (stoppedPeeking)
+        {
+            if (onUpper)
+            {
+                if (peekCam.transform.position.y >= topCam.transform.position.y)
+                {
+                    stoppedPeeking = false;
+                    isPeeking = false; 
+                    peekCam.m_Priority = 5;                   
+                }
+            }
+            else
+            {
+                if (peekCam.transform.position.y <= bottomCam.transform.position.y)
+                {
+                    stoppedPeeking = false;
+                    isPeeking = false;     
+                    peekCam.m_Priority = 5;               
+                }
+            }
+        }
+
+
         if (isPeeking)
         {
-            peekCam.transform.Translate(0,peekAmount,0);
+            doPeek(peekDir);
         }
 
         if (isBlinking)
-            isBlinking = false;
-    }
+            isBlinking = false;        
+    }    
 
     //--------------------------------------------------------------
     //Helper methods
+
+    private void doPeek(int direction)
+    {
+        float peekAmount = peekDir * peekSpeed * Time.deltaTime;
+        peekCam.transform.position = new Vector3(topCam.transform.position.x, peekCam.transform.position.y + peekAmount, peekCam.transform.position.z);
+    }
 
     public void SetCheckpoint(Vector3 pos)
     {
