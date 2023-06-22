@@ -6,7 +6,7 @@ public class EnemyManager : MonoBehaviour
 {
     private float enemyHP;
     [SerializeField] float maxHP;
-    private float ATTACK_POWER = 33;
+    private float ATTACK_POWER = 34;
 
     private bool isAlive = true;
     

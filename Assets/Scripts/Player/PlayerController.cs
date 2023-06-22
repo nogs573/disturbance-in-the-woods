@@ -182,12 +182,15 @@ public class PlayerController : MonoBehaviour
 
     public void OnAttack(InputAction.CallbackContext ctx)
     {
-        if (ctx.started)
+        if (!playerIsDead)
         {
-            flipAttack(facingRight);
-            animator.SetTrigger("Attacked");
-            blastAttack.Play();   
-            blastSound.Play();         
+            if (ctx.started)
+            {
+                flipAttack(facingRight);
+                animator.SetTrigger("Attacked");
+                blastAttack.Play();   
+                blastSound.Play();         
+            }
         }
     }
 
@@ -267,7 +270,7 @@ public class PlayerController : MonoBehaviour
 
         if (stuckInGround || blinkedInEnemy)
         {
-            PlayerManager.takeDamage(10);
+            PlayerManager.takeDamage(25);
             //Player.playSound("Player stuck in wall") (gasp?)
             //Debug.Log("GOT HERE");
             animator.SetBool("BeingHurt", true);
@@ -282,26 +285,36 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator HurtPlayer() 
     {
-        beingHurt = true;
-        hurtSound.Play();
-        yield return new WaitForSeconds(0.25f);
-        animator.SetBool("BeingHurt", false);
-        beingHurt = false;
+        if (!playerIsDead)
+        {
+            beingHurt = true;
+            hurtSound.Play();
+            yield return new WaitForSeconds(0.25f);
+            animator.SetBool("BeingHurt", false);
+            beingHurt = false;
+        }
+        else
+            animator.SetBool("BeingHurt", false);
     }
 
     IEnumerator FreezePlayer(float t)
     {       
-        beingHurt = true;
-        hurtSound.Play();
-        yield return new WaitForSeconds(0.25f);
-        animator.SetBool("BeingHurt", false);
-        beingHurt = false;
-        animator.SetBool("Frozen", true);
-        yield return new WaitForSeconds(t);    
-        animator.SetBool("Frozen", false);
-        mirror.GetComponent<PlayerMirror>().dimensionFlip(); 
-        PerformBlink();
-        body.constraints = RigidbodyConstraints2D.FreezeRotation;        
+        if (!playerIsDead)
+        {
+            beingHurt = true;
+            hurtSound.Play();
+            yield return new WaitForSeconds(0.25f);
+            animator.SetBool("BeingHurt", false);
+            beingHurt = false;
+            animator.SetBool("Frozen", true);
+            yield return new WaitForSeconds(t);    
+            animator.SetBool("Frozen", false);
+            mirror.GetComponent<PlayerMirror>().dimensionFlip(); 
+            PerformBlink();
+            body.constraints = RigidbodyConstraints2D.FreezeRotation;   
+        }    
+        else
+            animator.SetBool("BeingHurt", false); 
     }
 
     //Can't use this to check the ground anymore because the ground is so slippery
