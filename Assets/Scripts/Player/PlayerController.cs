@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 checkpointPos;
     private Vector3 startingPos;
 
+    public bool isAtStart = true;
+    public Timer timer;
+
 
     ParticleSystem blinkEffect;
 
@@ -102,6 +105,8 @@ public class PlayerController : MonoBehaviour
         defaultPlayerActions = new PlayerInputs();
 
         level = GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>();       
+
+        timer = GameObject.FindWithTag("Timer").GetComponent<Timer>();
         
         mirror = GameObject.FindGameObjectsWithTag("Mirror")[0];
         topCam = GameObject.FindGameObjectsWithTag("TopCam")[0].GetComponent<CinemachineVirtualCamera>();
@@ -391,6 +396,8 @@ public class PlayerController : MonoBehaviour
             checkpointPos = startingPos;
             PlayerManager.setHP(PlayerManager.getMaxHP());   
             playerIsDead = false;
+            isAtStart = true;
+            timer.ResetTimer();
         }
         
         body.position = checkpointPos;
@@ -419,6 +426,11 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate() 
     {        
         Vector2 moveDir = moveAction.ReadValue<Vector2>();
+        if (isAtStart && moveDir != Vector2.zero)
+        {
+            isAtStart = false;
+            timer.StartTimer();
+        }
         Vector2 vel = body.velocity;
 
         if (checkPlayerDead() && !playerIsDead)
