@@ -82,7 +82,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ResetPos"",
+                    ""name"": ""ResetCheckpoint"",
                     ""type"": ""Button"",
                     ""id"": ""847edcf7-67a3-4c81-8188-1159b0eb12e2"",
                     ""expectedControlType"": ""Button"",
@@ -94,6 +94,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Quit"",
                     ""type"": ""Button"",
                     ""id"": ""f9c6de52-62af-4a76-9436-361925c15912"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ResetLevel"",
+                    ""type"": ""Button"",
+                    ""id"": ""9f99be16-2184-46ef-bb26-6da80367fa82"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -235,34 +244,23 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""40054b6a-7b7d-41d1-8ecd-84cba9cee3f9"",
-                    ""path"": ""<Keyboard>/t"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Blink"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""616acdb3-f54c-4470-9f81-664f9394c4b4"",
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""ResetPos"",
+                    ""action"": ""ResetCheckpoint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""8c79a1e5-5dfe-4eaf-ab14-4b1772d35599"",
-                    ""path"": ""<Gamepad>/start"",
+                    ""path"": ""<Gamepad>/dpad/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""ResetPos"",
+                    ""action"": ""ResetCheckpoint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -417,6 +415,28 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2205ec81-b351-4fff-9b18-3eefb85d362c"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ResetLevel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fe537a19-d12a-4355-be23-b832a93c4483"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""ResetLevel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1010,8 +1030,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Blink = m_Player.FindAction("Blink", throwIfNotFound: true);
         m_Player_Peek = m_Player.FindAction("Peek", throwIfNotFound: true);
-        m_Player_ResetPos = m_Player.FindAction("ResetPos", throwIfNotFound: true);
+        m_Player_ResetCheckpoint = m_Player.FindAction("ResetCheckpoint", throwIfNotFound: true);
         m_Player_Quit = m_Player.FindAction("Quit", throwIfNotFound: true);
+        m_Player_ResetLevel = m_Player.FindAction("ResetLevel", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1091,8 +1112,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Blink;
     private readonly InputAction m_Player_Peek;
-    private readonly InputAction m_Player_ResetPos;
+    private readonly InputAction m_Player_ResetCheckpoint;
     private readonly InputAction m_Player_Quit;
+    private readonly InputAction m_Player_ResetLevel;
     public struct PlayerActions
     {
         private @PlayerInputs m_Wrapper;
@@ -1103,8 +1125,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Blink => m_Wrapper.m_Player_Blink;
         public InputAction @Peek => m_Wrapper.m_Player_Peek;
-        public InputAction @ResetPos => m_Wrapper.m_Player_ResetPos;
+        public InputAction @ResetCheckpoint => m_Wrapper.m_Player_ResetCheckpoint;
         public InputAction @Quit => m_Wrapper.m_Player_Quit;
+        public InputAction @ResetLevel => m_Wrapper.m_Player_ResetLevel;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1132,12 +1155,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Peek.started += instance.OnPeek;
             @Peek.performed += instance.OnPeek;
             @Peek.canceled += instance.OnPeek;
-            @ResetPos.started += instance.OnResetPos;
-            @ResetPos.performed += instance.OnResetPos;
-            @ResetPos.canceled += instance.OnResetPos;
+            @ResetCheckpoint.started += instance.OnResetCheckpoint;
+            @ResetCheckpoint.performed += instance.OnResetCheckpoint;
+            @ResetCheckpoint.canceled += instance.OnResetCheckpoint;
             @Quit.started += instance.OnQuit;
             @Quit.performed += instance.OnQuit;
             @Quit.canceled += instance.OnQuit;
+            @ResetLevel.started += instance.OnResetLevel;
+            @ResetLevel.performed += instance.OnResetLevel;
+            @ResetLevel.canceled += instance.OnResetLevel;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1160,12 +1186,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Peek.started -= instance.OnPeek;
             @Peek.performed -= instance.OnPeek;
             @Peek.canceled -= instance.OnPeek;
-            @ResetPos.started -= instance.OnResetPos;
-            @ResetPos.performed -= instance.OnResetPos;
-            @ResetPos.canceled -= instance.OnResetPos;
+            @ResetCheckpoint.started -= instance.OnResetCheckpoint;
+            @ResetCheckpoint.performed -= instance.OnResetCheckpoint;
+            @ResetCheckpoint.canceled -= instance.OnResetCheckpoint;
             @Quit.started -= instance.OnQuit;
             @Quit.performed -= instance.OnQuit;
             @Quit.canceled -= instance.OnQuit;
+            @ResetLevel.started -= instance.OnResetLevel;
+            @ResetLevel.performed -= instance.OnResetLevel;
+            @ResetLevel.canceled -= instance.OnResetLevel;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1354,8 +1383,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnBlink(InputAction.CallbackContext context);
         void OnPeek(InputAction.CallbackContext context);
-        void OnResetPos(InputAction.CallbackContext context);
+        void OnResetCheckpoint(InputAction.CallbackContext context);
         void OnQuit(InputAction.CallbackContext context);
+        void OnResetLevel(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

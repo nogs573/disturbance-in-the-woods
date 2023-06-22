@@ -60,7 +60,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ResetPos",
+                    "name": "ResetCheckpoint",
                     "type": "Button",
                     "id": "847edcf7-67a3-4c81-8188-1159b0eb12e2",
                     "expectedControlType": "Button",
@@ -72,6 +72,15 @@
                     "name": "Quit",
                     "type": "Button",
                     "id": "f9c6de52-62af-4a76-9436-361925c15912",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResetLevel",
+                    "type": "Button",
+                    "id": "9f99be16-2184-46ef-bb26-6da80367fa82",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -213,34 +222,23 @@
                 },
                 {
                     "name": "",
-                    "id": "40054b6a-7b7d-41d1-8ecd-84cba9cee3f9",
-                    "path": "<Keyboard>/t",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Blink",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "616acdb3-f54c-4470-9f81-664f9394c4b4",
                     "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "ResetPos",
+                    "action": "ResetCheckpoint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "8c79a1e5-5dfe-4eaf-ab14-4b1772d35599",
-                    "path": "<Gamepad>/start",
+                    "path": "<Gamepad>/dpad/up",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "ResetPos",
+                    "action": "ResetCheckpoint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -395,6 +393,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Quit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2205ec81-b351-4fff-9b18-3eefb85d362c",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ResetLevel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fe537a19-d12a-4355-be23-b832a93c4483",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ResetLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

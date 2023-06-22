@@ -46,11 +46,11 @@ public class PlayerController : MonoBehaviour
     private InputAction attackAction;
     private InputAction blinkAction;
     private InputAction peekAction;    
+    private InputAction resetCheckpoint;
+    private InputAction resetLevel;
 
     private float DIMENSION_DIF;
-
-    //for debuggin purposes
-    private InputAction resetAction;
+    
 
     private Rigidbody2D body;
     private float speed = 8f;
@@ -165,8 +165,11 @@ public class PlayerController : MonoBehaviour
         peekAction = defaultPlayerActions.Player.Peek;
         peekAction.Enable();
 
-        resetAction = defaultPlayerActions.Player.ResetPos;
-        resetAction.Enable();       
+        resetCheckpoint = defaultPlayerActions.Player.ResetCheckpoint;
+        resetCheckpoint.Enable();       
+
+        resetLevel = defaultPlayerActions.Player.ResetLevel;
+        resetLevel.Enable();
     }
 
     private void OnDisable() 
@@ -176,7 +179,8 @@ public class PlayerController : MonoBehaviour
         attackAction.Disable();
         blinkAction.Disable();
         peekAction.Disable();
-        resetAction.Disable();
+        resetCheckpoint.Disable();
+        resetLevel.Disable();
     }
 
     public void OnQuit(InputAction.CallbackContext ctx)
@@ -387,33 +391,64 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnReset(InputAction.CallbackContext ctx) 
+    public void OnResetLevel(InputAction.CallbackContext ctx)
     {
-        animator.SetBool("IsDead", false);        
-        animator.SetTrigger("Respawn");  
-        if (playerIsDead)
+        if (ctx.started)
         {
+            animator.SetBool("IsDead", false);        
+            animator.SetTrigger("Respawn");  
+            if (playerIsDead)
+            {
+                PlayerManager.setHP(PlayerManager.getMaxHP());   
+                playerIsDead = false;
+            }
+            
+            unlockPlayer(); 
+
+            if (!onUpper)
+                mirror.GetComponent<PlayerMirror>().dimensionFlip();
+
+            onUpper = true;
+            topCam.m_Follow = transform;
+            bottomCam.m_Follow = mirror.transform;
+            topCam.m_Priority = 10;
+            bottomCam.m_Priority = 8;
+
             checkpointPos = startingPos;
-            PlayerManager.setHP(PlayerManager.getMaxHP());   
-            playerIsDead = false;
+            body.position = startingPos;
             isAtStart = true;
             timer.ResetTimer();
         }
-        
-        body.position = checkpointPos;
-        
-        unlockPlayer(); 
+    }
 
-        //toggleLights(false);
+    public void OnReset(InputAction.CallbackContext ctx) 
+    {
+        if (ctx.started)
+        {
+            animator.SetBool("IsDead", false);        
+            animator.SetTrigger("Respawn");  
+            if (playerIsDead)
+            {
+                checkpointPos = startingPos;
+                PlayerManager.setHP(PlayerManager.getMaxHP());   
+                playerIsDead = false;
+                isAtStart = true;
+                timer.ResetTimer();
+            }
+            
+            body.position = checkpointPos;
+            
+            unlockPlayer();
 
-        if (!onUpper)
-            mirror.GetComponent<PlayerMirror>().dimensionFlip();
+            if (!onUpper)
+                mirror.GetComponent<PlayerMirror>().dimensionFlip();
 
-        onUpper = true;
-        topCam.m_Follow = transform;
-        bottomCam.m_Follow = mirror.transform;
-        topCam.m_Priority = 10;
-        bottomCam.m_Priority = 8;
+            onUpper = true;
+            topCam.m_Follow = transform;
+            bottomCam.m_Follow = mirror.transform;
+            topCam.m_Priority = 10;
+            bottomCam.m_Priority = 8;
+        }
     }
 
     IEnumerator KillPlayer() 
