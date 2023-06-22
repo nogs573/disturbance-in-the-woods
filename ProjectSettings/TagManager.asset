@@ -15,8 +15,10 @@ TagManager:
   - PatrolPoint
   - BlastAttack
   - BlinkEffect
-  - Checkpoint
   - Timer
+  - Checkpoint-0
+  - Checkpoint-1
+  - Checkpoint-2
   layers:
   - Default
   - TransparentFX
